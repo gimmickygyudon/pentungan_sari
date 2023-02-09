@@ -17,232 +17,252 @@ class Event extends StatelessWidget {
     return Theme(
       data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 28),
+        // padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 28),
         color: Colors.grey.shade200,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsets.all(8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      Text('Minggu ini', 
-                        style: GoogleFonts.varelaRound(
-                          color: Colors.grey.shade600,
-                          fontSize: 22,
-                          fontWeight: FontWeight.w600
-                        )
-                      ),
-                      const SizedBox(width: 8),
-                      Icon(Icons.arrow_downward, size: 24, color: Colors.grey.shade600)
-                    ],
-                  ),
-                  const Expanded(child: Divider(indent: 18, endIndent: 18, thickness: 2)),
-                  Row(
-                    children: [
-                      Icon(Icons.date_range, size: 24, color: Colors.grey.shade600),
-                      const SizedBox(width: 8),
-                      Text('$startWeek - $endWeek',
-                        style: GoogleFonts.roboto(
-                          color: Colors.grey.shade600,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w700
-                        ),
-                      ),
-                    ],
-                  )
-                ],
+            Card(
+              elevation: 4,
+              shadowColor: Colors.black38,
+              surfaceTintColor: Colors.transparent,
+              margin: EdgeInsets.zero,
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(24),
+                  bottomRight: Radius.circular(24)
+                )
               ),
-            ),
-            const SizedBox(height: 24),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  flex: 1,
-                  child: Column(
-                    children: [
-                      Text('KAMIS',
-                        style: GoogleFonts.roboto(
-                          color: Colors.green.shade600,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w500
-                        )
-                      ),
-                      Text(now.day.toString(),
-                        style: GoogleFonts.nunito(
-                          color: Colors.green.shade700,
-                          fontSize: 28,
-                          fontWeight: FontWeight.w700
-                        )
-                      )
-                    ],
-                  )
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  flex: 4,
-                  child: Material(
-                    elevation: 4,
-                    shadowColor: Colors.black12,
-                    borderRadius: BorderRadius.circular(8),
-                    clipBehavior: Clip.antiAlias,
-                    child: Row(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 28),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
                       children: [
-                        Expanded(
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.green.shade50,
-                              border: Border.all(width: 2, color: Colors.green),
-                              borderRadius: BorderRadius.circular(8),
-                              gradient: LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: const Alignment(-0.8, -0.4),
-                                stops: const [0.0, 0.5, 0.5, 1],
-                                colors: [
-                                    Colors.green.shade50,
-                                    Colors.green.shade50,
-                                    Colors.green.shade100,
-                                    Colors.green.shade100,
-                                ],
-                                tileMode: TileMode.repeated,
-                              ),
-                            ),
-                            child: ListTileTheme(
-                              dense: true,
-                              minVerticalPadding: 14,
-                              child: ExpansionTile(
-                                controlAffinity: ListTileControlAffinity.leading,
-                                leading: Icon(Icons.wb_sunny, color: Colors.green.shade700),
-                                tilePadding: const EdgeInsets.fromLTRB(24, 0, 16, 0),
-                                title: Text('Hari Biasa',
-                                  style: GoogleFonts.rubik(
-                                    color: Colors.green.shade700,
-                                    letterSpacing: -0.25,
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.w500
-                                  )
-                                ),
-                              ),
-                            ),
+                        Text('Minggu ini', 
+                          style: GoogleFonts.varelaRound(
+                            color: Colors.grey.shade600,
+                            fontSize: 22,
+                            fontWeight: FontWeight.w600
+                          )
+                        ),
+                        const SizedBox(width: 8),
+                        Icon(Icons.arrow_downward, size: 24, color: Colors.grey.shade600)
+                      ],
+                    ),
+                    Expanded(child: Divider(indent: 18, endIndent: 18, thickness: 2, color: Colors.grey.shade300)),
+                    Row(
+                      children: [
+                        Icon(Icons.date_range, size: 24, color: Colors.grey.shade600),
+                        const SizedBox(width: 8),
+                        Text('$startWeek - $endWeek',
+                          style: GoogleFonts.roboto(
+                            color: Colors.grey.shade600,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700
                           ),
                         ),
                       ],
-                    ),
-                  )
-                )
-              ]
+                    )
+                  ],
+                ),
+              ),
             ),
             const SizedBox(height: 32),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  flex: 1,
-                  child: Column(
-                    children: [
-                      Text('JUMAT',
-                        style: GoogleFonts.roboto(
-                          color: Colors.grey,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w500
-                        )
-                      ),
-                      Text((now.day + 1).toString(),
-                        style: GoogleFonts.nunito(
-                          color: Colors.grey.shade700,
-                          fontSize: 28,
-                          fontWeight: FontWeight.w700
-                        )
-                      )
-                    ],
-                  )
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  flex: 4,
-                  child: Material(
-                    elevation: 4,
-                    shadowColor: Colors.black12,
-                    borderRadius: BorderRadius.circular(12),
-                    clipBehavior: Clip.antiAlias,
-                    child: Stack(
-                      alignment: Alignment.centerLeft,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 28),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: Column(
                       children: [
-                        Expanded(
-                          child: ListTileTheme(
-                            dense: true,
-                            minVerticalPadding: 14,
-                            child: ListTile(
-                              onTap: () {
-                                showModalBottomSheet<void>(
-                                  barrierColor: Colors.black26,
-                                  context: context,
-                                  clipBehavior: Clip.antiAlias,
-                                  isScrollControlled: true,
-                                  builder: (BuildContext context) {
-                                    return EventSheet(
-                                      title: 'Rapat Posyandu',
-                                      subtitle: 'Jam: 07.30 - 11.30',
-                                      time: (now.day + 1).toString(),
-                                      place: 'Pendopo',
-                                      speaker: true,
-                                    );
-                                  },
-                                );
-                              },
-                              splashColor: Colors.blue.shade100,
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.campaign, size: 32, color: Colors.grey.shade700),
-                                  const SizedBox(width: 8),
-                                  Icon(Icons.foundation, size: 32, color: Colors.grey.shade700),
-                                ],
-                              ),
-                              contentPadding: const EdgeInsets.fromLTRB(24, 0, 18, 0),
-                              title: Padding(
-                                padding: const EdgeInsets.only(bottom: 4),
-                                child: Text('Rapat Posyandu', 
-                                  style: GoogleFonts.rubik(
-                                    color: Colors.grey.shade700,
-                                    letterSpacing: -0.5,
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.w500
-                                  )
+                        Text('KAMIS',
+                          style: GoogleFonts.roboto(
+                            color: Colors.green.shade600,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500
+                          )
+                        ),
+                        Text(now.day.toString(),
+                          style: GoogleFonts.nunito(
+                            color: Colors.green.shade700,
+                            fontSize: 28,
+                            fontWeight: FontWeight.w700
+                          )
+                        )
+                      ],
+                    )
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    flex: 4,
+                    child: Material(
+                      elevation: 4,
+                      shadowColor: Colors.black12,
+                      borderRadius: BorderRadius.circular(8),
+                      clipBehavior: Clip.antiAlias,
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.green.shade50,
+                                border: Border.all(width: 2, color: Colors.green),
+                                borderRadius: BorderRadius.circular(8),
+                                gradient: LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: const Alignment(-0.8, -0.4),
+                                  stops: const [0.0, 0.5, 0.5, 1],
+                                  colors: [
+                                      Colors.green.shade50,
+                                      Colors.green.shade50,
+                                      Colors.green.shade100,
+                                      Colors.green.shade100,
+                                  ],
+                                  tileMode: TileMode.repeated,
                                 ),
                               ),
-                              subtitle: Row(
-                                children: [
-                                  const Icon(Icons.schedule, color: Colors.grey, size: 22),
-                                  const SizedBox(width: 6),
-                                  Text('07.30 - 11.30', 
-                                    style: GoogleFonts.roboto(
-                                      color: Colors.grey,
-                                      fontSize: 18,
+                              child: ListTileTheme(
+                                dense: true,
+                                minVerticalPadding: 14,
+                                child: ExpansionTile(
+                                  controlAffinity: ListTileControlAffinity.leading,
+                                  leading: Icon(Icons.wb_sunny, color: Colors.green.shade700),
+                                  tilePadding: const EdgeInsets.fromLTRB(24, 0, 16, 0),
+                                  title: Text('Hari Biasa',
+                                    style: GoogleFonts.rubik(
+                                      color: Colors.green.shade700,
+                                      letterSpacing: -0.25,
+                                      fontSize: 22,
                                       fontWeight: FontWeight.w500
                                     )
                                   ),
-                                ],
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        Container(
-                          width: 5, height: 60,
-                          decoration: BoxDecoration(
-                            color: Colors.blue,
-                            borderRadius: BorderRadius.circular(12)
-                          ),
-                        ),
-                      ],
-                    ),
+                        ],
+                      ),
+                    )
                   )
-                )
-              ]
+                ]
+              ),
+            ),
+            const SizedBox(height: 32),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 28),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: Column(
+                      children: [
+                        Text('JUMAT',
+                          style: GoogleFonts.roboto(
+                            color: Colors.grey,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500
+                          )
+                        ),
+                        Text((now.day + 1).toString(),
+                          style: GoogleFonts.nunito(
+                            color: Colors.grey.shade700,
+                            fontSize: 28,
+                            fontWeight: FontWeight.w700
+                          )
+                        )
+                      ],
+                    )
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    flex: 4,
+                    child: Material(
+                      elevation: 4,
+                      shadowColor: Colors.black12,
+                      borderRadius: BorderRadius.circular(12),
+                      clipBehavior: Clip.antiAlias,
+                      child: Stack(
+                        alignment: Alignment.centerLeft,
+                        children: [
+                          Expanded(
+                            child: ListTileTheme(
+                              dense: true,
+                              minVerticalPadding: 14,
+                              child: ListTile(
+                                onTap: () {
+                                  Future.delayed(const Duration(milliseconds: 150)).whenComplete(() {
+                                    return showModalBottomSheet<void>(
+                                      barrierColor: Colors.black26,
+                                      context: context,
+                                      clipBehavior: Clip.antiAlias,
+                                      isScrollControlled: true,
+                                      builder: (BuildContext context) {
+                                        return EventSheet(
+                                          title: 'Rapat Posyandu',
+                                          subtitle: 'Jam: 07.30 - 11.30',
+                                          time: (now.day + 1).toString(),
+                                          place: 'Pendopo',
+                                          speaker: true,
+                                        );
+                                      },
+                                    );
+                                  });
+                                },
+                                splashColor: Colors.blue.shade100,
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.campaign, size: 32, color: Colors.grey.shade700),
+                                    const SizedBox(width: 8),
+                                    Icon(Icons.foundation, size: 32, color: Colors.grey.shade700),
+                                  ],
+                                ),
+                                contentPadding: const EdgeInsets.fromLTRB(24, 0, 18, 0),
+                                title: Padding(
+                                  padding: const EdgeInsets.only(bottom: 4),
+                                  child: Text('Rapat Posyandu', 
+                                    style: GoogleFonts.rubik(
+                                      color: Colors.grey.shade700,
+                                      letterSpacing: -0.5,
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.w500
+                                    )
+                                  ),
+                                ),
+                                subtitle: Row(
+                                  children: [
+                                    const Icon(Icons.schedule, color: Colors.grey, size: 22),
+                                    const SizedBox(width: 6),
+                                    Text('07.30 - 11.30', 
+                                      style: GoogleFonts.roboto(
+                                        color: Colors.grey,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w500
+                                      )
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          Container(
+                            width: 5, height: 60,
+                            decoration: BoxDecoration(
+                              color: Colors.blue,
+                              borderRadius: BorderRadius.circular(12)
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  )
+                ]
+              ),
             )
           ]
         ),

@@ -29,9 +29,9 @@ class _RecreationPageState extends State<RecreationPage> with SingleTickerProvid
   final DateTime now = DateTime.now();
   late DateTime lastDayOfMonth;
 
-  List<String> tabsName = ['Wisata', 'Acara', 'Permainan'];
-  List<IconData> tabsIcon = [Icons.park_rounded, Icons.celebration_rounded, Icons.attractions];
-  List<IconData> unselectedtabsIcon = [Icons.park_outlined, Icons.celebration_outlined, Icons.pool_outlined];
+  List<String> tabsName = ['Wisata', 'Acara', 'Kegiatan'];
+  List<IconData> tabsIcon = [Icons.park_rounded, Icons.celebration_rounded, Icons.stadium];
+  List<IconData> unselectedtabsIcon = [Icons.park_outlined, Icons.celebration_outlined, Icons.stadium_outlined];
 
   @override
   void initState() {
@@ -74,7 +74,7 @@ class _RecreationPageState extends State<RecreationPage> with SingleTickerProvid
                       icon: const Icon(Icons.menu, color: Colors.white)
                     ),
                     pinned: true,
-                    expandedHeight: _tabController.index == 1 ? 280 : 220,
+                    expandedHeight: _tabController.index == 1 ? 286 : 226,
                     toolbarHeight: 60,
                     elevation: 8,
                     surfaceTintColor: Colors.lightGreen,
@@ -97,7 +97,7 @@ class _RecreationPageState extends State<RecreationPage> with SingleTickerProvid
                     flexibleSpace: FlexibleSpaceBar(
                       expandedTitleScale: 1.35,
                       background: Padding(
-                        padding: const EdgeInsets.only(left: 32, top: 56, right: 32, bottom: 52),
+                        padding: const EdgeInsets.only(left: 32, top: 58, right: 32, bottom: 56),
                         child: Column(
                           children: [
                             AnimatedSize(
@@ -225,13 +225,12 @@ class _RecreationPageState extends State<RecreationPage> with SingleTickerProvid
                       controller: _tabController,
                       splashBorderRadius: BorderRadius.circular(12),
                       dividerColor: Colors.transparent,
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      padding: const EdgeInsets.fromLTRB(12, 0, 12, 4),
                       isScrollable: true,
-                      indicatorSize: TabBarIndicatorSize.label,
                       indicatorColor: Colors.white,
                       indicator: UnderlineTabIndicator(
-                        borderRadius: BorderRadius.circular(60),
-                        borderSide: const BorderSide(width: 4, color: Colors.white),
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(width: 3, color: Colors.white),
                         insets: const EdgeInsets.only(left: 4)
                       ),
                       labelColor: Colors.white,
@@ -245,7 +244,7 @@ class _RecreationPageState extends State<RecreationPage> with SingleTickerProvid
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(tabsIcon[index]),
+                              Icon(_tabController.index == index ? tabsIcon[index] : unselectedtabsIcon[index]),
                               const SizedBox(width: 8),
                               Text(tabsName[index])
                             ],
