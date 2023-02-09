@@ -100,29 +100,37 @@ class _RecreationPageState extends State<RecreationPage> with SingleTickerProvid
                         padding: const EdgeInsets.only(left: 32, top: 56, right: 32, bottom: 52),
                         child: Column(
                           children: [
-                            Visibility(
-                              visible: _tabController.index == 1 ? true : false,
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 4),
-                                child: DropdownButton(
-                                  value: 'Februari',
-                                  onChanged: (value) {},
-                                  underline: const SizedBox(),
-                                  icon: Transform.translate(
-                                    offset: const Offset(5, 0),
-                                    child: const Icon(Icons.expand_more, size: 30, color: Colors.white)
-                                  ),
-                                  style: GoogleFonts.rubik(
-                                    color: Colors.white,
-                                    fontSize: 28,
-                                    fontWeight: FontWeight.w400
-                                  ),
-                                  items: const [
-                                    DropdownMenuItem(
+                            AnimatedSize(
+                              curve: Curves.fastOutSlowIn,
+                              duration: const Duration(milliseconds: 300),
+                              child: SizedBox(
+                                height: _tabController.index == 1 ? null : 0,
+                                width: null,
+                                child: AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 300),
+                                  child: _tabController.index == 1 ? Padding(
+                                    padding: const EdgeInsets.symmetric(vertical: 4),
+                                    child: DropdownButton(
                                       value: 'Februari',
-                                      child: Text('Februari')
-                                    ) 
-                                  ], 
+                                      onChanged: (value) {},
+                                      underline: const SizedBox(),
+                                      icon: Transform.translate(
+                                        offset: const Offset(5, 0),
+                                        child: const Icon(Icons.expand_more, size: 30, color: Colors.white)
+                                      ),
+                                      style: GoogleFonts.rubik(
+                                        color: Colors.white,
+                                        fontSize: 28,
+                                        fontWeight: FontWeight.w400
+                                      ),
+                                      items: const [
+                                        DropdownMenuItem(
+                                          value: 'Februari',
+                                          child: Text('Februari')
+                                        ) 
+                                      ], 
+                                    ),
+                                  ) : null,
                                 ),
                               ),
                             ),
