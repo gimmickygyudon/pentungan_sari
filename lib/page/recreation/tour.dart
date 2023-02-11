@@ -7,8 +7,8 @@ class Tour extends StatelessWidget {
   final List<String> parks = ['pool_1.jpg', 'gapura_1.jpg', 'gazebo_1.jpg', 'cafe_1.jpg'];
   final List<String> parksNames = ['Kolam', 'Gapura', 'Gazebo', 'Cafe'];
 
-  final List<String> facilities = ['Pendopo', 'Mushola', 'Kamar Mandi'];
-  final List<String> facilitiesNames = ['pendopo_1.jpg', 'mosque_1.jpg', 'toilet_1.jpg'];
+  final List<String> facilities = ['Pendopo', 'Terapi Ikan', 'Mushola', 'Kamar Mandi'];
+  final List<String> facilitiesNames = ['pendopo_1.jpg', 'therapy_1.jpg', 'mosque_1.jpg', 'toilet_1.jpg'];
 
   @override
   Widget build(BuildContext context) {
@@ -130,7 +130,7 @@ class Tour extends StatelessWidget {
                     physics: const BouncingScrollPhysics(),
                     padding: const EdgeInsets.fromLTRB(18, 0, 12, 0),
                     scrollDirection: Axis.horizontal,
-                    children: List.generate(3, (index) {
+                    children: List.generate(facilities.length, (index) {
                       return Padding(
                         padding: const EdgeInsets.all(8),
                         child: Card(

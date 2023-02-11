@@ -409,6 +409,7 @@ class _ShowDialogEventState extends State<ShowDialogEvent> {
                         ElevatedButton(
                           onPressed: () => Navigator.pop(context),
                           style: ButtonStyle(
+                            elevation: const MaterialStatePropertyAll(2),
                             shadowColor: const MaterialStatePropertyAll(Colors.black45),
                             padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 12, horizontal: 24)),
                             surfaceTintColor: const MaterialStatePropertyAll(Colors.transparent),
@@ -432,6 +433,7 @@ class _ShowDialogEventState extends State<ShowDialogEvent> {
                         ElevatedButton(
                           onPressed: () {},
                           style: ButtonStyle(
+                            elevation: const MaterialStatePropertyAll(2),
                             shadowColor: const MaterialStatePropertyAll(Colors.black45),
                             padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 12, horizontal: 28)),
                             backgroundColor: const MaterialStatePropertyAll(Colors.lightGreen),
@@ -478,6 +480,8 @@ Future<void> showPickTime(BuildContext context, Function callback, TimeOfDay tim
         data: Theme.of(context).copyWith(
           colorScheme: ColorScheme.light(
             surface: Colors.white,
+            surfaceTint: Colors.white,
+            surfaceVariant: Colors.lightGreen.shade100,
             primary: Colors.lightGreen,
             primaryContainer: Colors.lightGreen.shade200,
             onPrimary: Colors.white,
@@ -505,11 +509,11 @@ Future<void> showPickTime(BuildContext context, Function callback, TimeOfDay tim
           ),
           textButtonTheme: TextButtonThemeData(
             style: ButtonStyle(
-              elevation: const MaterialStatePropertyAll(1),
+              elevation: const MaterialStatePropertyAll(2),
               shadowColor: const MaterialStatePropertyAll(Colors.black45),
               padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 12, horizontal: 24)),
               surfaceTintColor: const MaterialStatePropertyAll(Colors.transparent),
-              backgroundColor: const MaterialStatePropertyAll(Colors.white),
+              backgroundColor: MaterialStatePropertyAll(Colors.grey.shade50),
               foregroundColor: MaterialStatePropertyAll(Colors.grey.shade700),
               textStyle: MaterialStatePropertyAll(
                 GoogleFonts.varelaRound(

@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
-import '../../assets/dialog.dart';
-
 class Event extends StatelessWidget {
   const Event({super.key, required this.now});
 
@@ -12,10 +10,6 @@ class Event extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String startWeek = DateFormat('d').format(getDate(now.subtract(Duration(days: now.weekday - 1))));
-    final String endWeek = DateFormat('d').format(getDate(now.add(Duration(days: DateTime.daysPerWeek - now.weekday))));
-    
-    debugPrint(DateFormat('MMMM').format(DateTime.now()));
     return Theme(
       data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
       child: Container(
@@ -464,11 +458,6 @@ class EventSheet extends StatelessWidget {
                       elevation: const MaterialStatePropertyAll(0),
                       backgroundColor: MaterialStatePropertyAll(Colors.grey.shade100),
                       padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 12, horizontal: 8)),
-                      shape: MaterialStatePropertyAll(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16)
-                        )
-                      )
                     ),
                     icon: Icon(Icons.call, color: Colors.grey.shade600),
                     label: Text('Kontak',
@@ -485,15 +474,10 @@ class EventSheet extends StatelessWidget {
                   flex: 4,
                   child: ElevatedButton.icon(
                     onPressed: () {}, 
-                    style: ButtonStyle(
-                      elevation: const MaterialStatePropertyAll(0),
-                      backgroundColor: const MaterialStatePropertyAll(Colors.lightGreen),
-                      padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 12, horizontal: 8)),
-                      shape: MaterialStatePropertyAll(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16)
-                        )
-                      )
+                    style: const ButtonStyle(
+                      elevation: MaterialStatePropertyAll(0),
+                      backgroundColor: MaterialStatePropertyAll(Colors.lightGreen),
+                      padding: MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 12, horizontal: 8)),
                     ),
                     icon: Icon(Icons.location_on, color: Colors.grey.shade100),
                     label: Text('Cari Lokasi',

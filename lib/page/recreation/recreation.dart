@@ -37,11 +37,23 @@ class _RecreationPageState extends State<RecreationPage> with SingleTickerProvid
   List<IconData> tabsIcon = [Icons.park, Icons.celebration, Icons.stadium];
   List<IconData> unselectedtabsIcon = [Icons.park_outlined, Icons.celebration_outlined, Icons.stadium_outlined];
 
+  double headerHeight = 206;
+
   @override
   void initState() {
     _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(() { 
-      setState(() {});
+      setState(() {
+        switch (_tabController.index) {
+          case 0:
+            headerHeight = 206;
+            break;
+          case 1:
+            headerHeight = 286;
+            break;
+          default: headerHeight = 206;
+        }
+      });
     });
 
     _weatherController = ScrollController(
@@ -101,13 +113,19 @@ class _RecreationPageState extends State<RecreationPage> with SingleTickerProvid
                 headerSliverBuilder: (context, innerBoxIsScrolled) {
                   return [
                     SliverAppBar(
-                      leading: IconButton(
-                        onPressed: () {}, 
-                        icon: const Icon(Icons.menu, color: Colors.white, size: 28)
+                      leadingWidth: 76,
+                      leading: Padding(
+                        padding: const EdgeInsets.only(left: 6),
+                        child: Transform.scale(
+                          scale: 0.75,
+                          child: const Image(
+                            image: AssetImage('images/bumdes.png'),
+                          ),
+                        ),
                       ),
                       pinned: true,
-                      expandedHeight: _tabController.index == 1 ? 286 : 226,
-                      toolbarHeight: 60,
+                      expandedHeight: headerHeight,
+                      toolbarHeight: 68,
                       elevation: 8,
                       surfaceTintColor: Colors.lightGreen,
                       backgroundColor: Colors.lightGreen,
@@ -115,7 +133,14 @@ class _RecreationPageState extends State<RecreationPage> with SingleTickerProvid
                       titleSpacing: 0.0,
                       title: Text(widget.title, 
                         style: GoogleFonts.nunito(
-                          color: Colors.white,
+                          shadows: [ 
+                            Shadow(
+                              color: Colors.lightBlue.shade200,
+                              blurRadius: 8,
+                              offset: const Offset(1, 1)
+                            )
+                          ],
+                          color: Colors.grey.shade100,
                           fontSize: 24,
                           fontWeight: FontWeight.w800
                         )
@@ -127,9 +152,8 @@ class _RecreationPageState extends State<RecreationPage> with SingleTickerProvid
                         )
                       ),
                       flexibleSpace: FlexibleSpaceBar(
-                        expandedTitleScale: 1.35,
                         background: Padding(
-                          padding: const EdgeInsets.only(left: 32, top: 58, right: 32, bottom: 56),
+                          padding: const EdgeInsets.only(left: 32, top: 58, right: 32, bottom: 54),
                           child: Column(
                             children: [
                               AnimatedSize(
@@ -141,7 +165,7 @@ class _RecreationPageState extends State<RecreationPage> with SingleTickerProvid
                                   child: AnimatedSwitcher(
                                     duration: const Duration(milliseconds: 300),
                                     child: _tabController.index == 1 ? Padding(
-                                      padding: const EdgeInsets.symmetric(vertical: 4),
+                                      padding: const EdgeInsets.only(top: 10, bottom: 0),
                                       child: DropdownButton(
                                         value: '${now.day} ${DateFormat('MMMM', 'id').format(now)} ${now.year}',
                                         onChanged: (value) {},
@@ -153,8 +177,9 @@ class _RecreationPageState extends State<RecreationPage> with SingleTickerProvid
                                         style: GoogleFonts.rubik(
                                           color: Colors.white,
                                           wordSpacing: 4,
+                                          letterSpacing: -0.5,
                                           fontSize: 28,
-                                          fontWeight: FontWeight.w400
+                                          fontWeight: FontWeight.w500
                                         ),
                                         items: [
                                           DropdownMenuItem(
@@ -168,50 +193,73 @@ class _RecreationPageState extends State<RecreationPage> with SingleTickerProvid
                                 ),
                               ),
                               Expanded(
-                                child: ListView.builder(
-                                  shrinkWrap: true,
-                                  controller: _weatherController,
-                                  scrollDirection: Axis.horizontal,
-                                  itemCount: lastDayOfMonth.day,
-                                  itemBuilder: (context, index) {
-                                    if (i > 6) i = 0;
-                                    Widget widget = Padding(
-                                      padding: const EdgeInsets.all(4),
-                                      child: Container(
-                                        padding: const EdgeInsets.all(12),
-                                        decoration: BoxDecoration(
-                                          color: index == (today - 1)
-                                            ? Colors.green.shade700 
-                                            : null,
-                                          borderRadius: BorderRadius.circular(14)
-                                        ),
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Text(
-                                              (index + 1).toString(), 
-                                              style: GoogleFonts.rubik(
-                                                color: Colors.white,
-                                                fontSize: 16
-                                              )
-                                            ),
-                                            const SizedBox(height: 8),
-                                            Icon(weatherIcons[i], color: Colors.white),
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              days[i].substring(0, 3).toUpperCase(),
-                                              style: GoogleFonts.rubik(
-                                                color: Colors.grey.shade300,
-                                                fontSize: 14
+                                child: AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 400),
+                                  child: _tabController.index == 1 ? ListView.builder(
+                                    shrinkWrap: true,
+                                    controller: _weatherController,
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount: lastDayOfMonth.day,
+                                    itemBuilder: (context, index) {
+                                      if (i > 6) i = 0;
+                                      Widget widget = Padding(
+                                        padding: const EdgeInsets.all(4),
+                                        child: Container(
+                                          padding: const EdgeInsets.all(12),
+                                          decoration: BoxDecoration(
+                                            color: index == (today - 1)
+                                              ? Colors.green.shade700 
+                                              : null,
+                                            borderRadius: BorderRadius.circular(14)
+                                          ),
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Text(
+                                                (index + 1).toString(), 
+                                                style: GoogleFonts.rubik(
+                                                  color: Colors.white,
+                                                  fontSize: 16
+                                                )
                                               ),
-                                            )
-                                          ],
+                                              const SizedBox(height: 8),
+                                              Icon(weatherIcons[i], color: Colors.white),
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                days[i].substring(0, 3).toUpperCase(),
+                                                style: GoogleFonts.rubik(
+                                                  color: Colors.grey.shade300,
+                                                  fontSize: 14
+                                                ),
+                                              )
+                                            ],
+                                          ),
                                         ),
-                                      ),
-                                    );
-                                    i++;
-                                    return widget;
-                                  }
+                                      );
+                                      i++;
+                                      return widget;
+                                    }
+                                  ) : ListTile(
+                                    contentPadding: EdgeInsets.zero,
+                                    title: const Padding(
+                                      padding: EdgeInsets.only(bottom: 4, top: 2),
+                                      child: Text('Toyomarto - Singosari'),
+                                    ),
+                                    subtitle: const Text('Kabupaten Malang'),
+                                    textColor: Colors.grey.shade100,
+                                    leading: const Icon(Icons.wb_sunny, size: 36, color: Colors.yellow),
+                                    trailing: const Icon(Icons.navigate_next),
+                                    iconColor: Colors.white,
+                                    visualDensity: const VisualDensity(vertical: 4),
+                                    titleTextStyle: GoogleFonts.varelaRound(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.w600
+                                    ),
+                                    subtitleTextStyle: GoogleFonts.rubik(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w400
+                                    ),
+                                  ),
                                 ),
                               ),
                             ],
@@ -233,22 +281,12 @@ class _RecreationPageState extends State<RecreationPage> with SingleTickerProvid
                               backgroundColor: MaterialStatePropertyAll(Colors.white),
                               foregroundColor: MaterialStatePropertyAll(Colors.lightGreen),
                               overlayColor: MaterialStatePropertyAll(Colors.lightGreen),
-                              shape: MaterialStatePropertyAll(
-                                RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.only(
-                                    topRight: Radius.circular(0),
-                                    topLeft: Radius.circular(25.7),
-                                    bottomRight: Radius.circular(25.7),
-                                    bottomLeft: Radius.circular(25.7)
-                                  )
-                                )
-                              )
                             ),
                             child: Text(
                               'Pesan Tempat', 
                               style: GoogleFonts.rubik(
                                 letterSpacing: -0.25,
-                                fontSize: 18,
+                                fontSize: 16,
                                 fontWeight: FontWeight.w500
                               )
                             ),
@@ -257,9 +295,10 @@ class _RecreationPageState extends State<RecreationPage> with SingleTickerProvid
                       ],
                       bottom: TabBar(
                         controller: _tabController,
+                        physics: const NeverScrollableScrollPhysics(),
                         splashBorderRadius: BorderRadius.circular(12),
                         dividerColor: Colors.transparent,
-                        padding: const EdgeInsets.fromLTRB(12, 0, 12, 4),
+                        padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
                         isScrollable: true,
                         indicatorColor: Colors.white,
                         indicator: UnderlineTabIndicator(
@@ -294,6 +333,7 @@ class _RecreationPageState extends State<RecreationPage> with SingleTickerProvid
                   ];
                 },
                 body: TabBarView(
+                  physics: const NeverScrollableScrollPhysics(),
                   controller: _tabController,
                   children: [
                     Tour(),

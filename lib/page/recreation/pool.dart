@@ -71,7 +71,7 @@ class _PoolPageState extends State<PoolPage> {
                         height: 46,
                         width: 46,
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(14),
                           color: Colors.white,
                         ),
                         child: InkWell(
@@ -152,8 +152,8 @@ class _PoolPageState extends State<PoolPage> {
                                 return Padding(
                                   padding: const EdgeInsets.only(left: 12),
                                   child: Container(
-                                    height: 10,
-                                    width: 10,
+                                    height: 14,
+                                    width: 14,
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,
                                       color: Colors.grey.shade100,
@@ -439,7 +439,7 @@ class _PoolPageState extends State<PoolPage> {
                                     const SizedBox(height: 8),
                                   ],
                                 ),
-                                const SizedBox(height: 24),
+                                const SizedBox(height: 20),
                                 Text('Fasilitas',
                                   style: GoogleFonts.rubik(
                                     color: Colors.grey.shade600,
@@ -461,12 +461,12 @@ class _PoolPageState extends State<PoolPage> {
                                   child: Material(
                                     color: Colors.transparent,
                                     child: ListTile(
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                                       onTap: () {},
-                                      tileColor: Colors.white,
-                                      splashColor: Colors.blue.shade100,
+                                      tileColor: Colors.grey.shade50,
+                                      splashColor: Colors.blue.shade50,
                                       dense: false,
-                                      contentPadding: const EdgeInsets.fromLTRB(12, 8, 16, 8),
+                                      contentPadding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                                       leading: ClipRRect(
                                         borderRadius: BorderRadius.circular(10),
                                         child: Image.asset('images/ban_pelampung.jpg',
@@ -478,16 +478,17 @@ class _PoolPageState extends State<PoolPage> {
                                       title: Text('Ban Pelampung',
                                         style: GoogleFonts.varelaRound(
                                           color: Colors.grey.shade600,
-                                          height: 1.5,
                                           fontWeight: FontWeight.w600,
-                                          fontSize: 16
+                                          fontSize: 16,
                                         ),
                                       ),
                                       subtitle: Text('Alat Renang',
                                         style: GoogleFonts.roboto(
                                           color: Colors.grey.shade400,
                                           fontWeight: FontWeight.w500,
+                                          fontSize: 16,
                                           height: 1.5,
+                                          letterSpacing: -0.05
                                         ),
                                       ),
                                       trailing: Container(
@@ -500,7 +501,7 @@ class _PoolPageState extends State<PoolPage> {
                                           style: GoogleFonts.signikaNegative(
                                             color: Colors.white,
                                             height: 0,
-                                            fontSize: 18,
+                                            fontSize: 20,
                                             fontWeight: FontWeight.w500
                                           ),
                                         ),
@@ -521,12 +522,12 @@ class _PoolPageState extends State<PoolPage> {
                                   child: Material(
                                     color: Colors.transparent,
                                     child: ListTile(
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                                       onTap: () {},
-                                      tileColor: Colors.white,
-                                      splashColor: Colors.blue.shade100,
+                                      tileColor: Colors.grey.shade50,
+                                      splashColor: Colors.blue.shade50,
                                       dense: false,
-                                      contentPadding: const EdgeInsets.fromLTRB(12, 8, 16, 8),
+                                      contentPadding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                                       leading: ClipRRect(
                                         borderRadius: BorderRadius.circular(10),
                                         child: Image.asset('images/papan_pelampung.jpg',
@@ -547,7 +548,9 @@ class _PoolPageState extends State<PoolPage> {
                                         style: GoogleFonts.roboto(
                                           color: Colors.grey.shade400,
                                           fontWeight: FontWeight.w500,
+                                          fontSize: 16,
                                           height: 1.5,
+                                          letterSpacing: -0.05
                                         ),
                                       ),
                                       trailing: Container(
@@ -560,7 +563,7 @@ class _PoolPageState extends State<PoolPage> {
                                           style: GoogleFonts.signikaNegative(
                                             color: Colors.white,
                                             height: 0,
-                                            fontSize: 18,
+                                            fontSize: 20,
                                             fontWeight: FontWeight.w500
                                           ),
                                         ),
@@ -586,7 +589,7 @@ class _PoolPageState extends State<PoolPage> {
                           )
                         ),
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
+                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
@@ -595,14 +598,10 @@ class _PoolPageState extends State<PoolPage> {
                                 child: ElevatedButton.icon(
                                   onPressed: () {}, 
                                   style: ButtonStyle(
+                                    visualDensity: VisualDensity.standard,
                                     elevation: const MaterialStatePropertyAll(0),
-                                    backgroundColor: const MaterialStatePropertyAll(Colors.transparent),
+                                    backgroundColor: MaterialStatePropertyAll(Colors.grey.shade100),
                                     padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 12, horizontal: 8)),
-                                    shape: MaterialStatePropertyAll(
-                                      RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(16)
-                                      )
-                                    )
                                   ),
                                   icon: Icon(Icons.call, color: Colors.grey.shade600),
                                   label: Text('Kontak',
@@ -620,19 +619,15 @@ class _PoolPageState extends State<PoolPage> {
                                 child: ElevatedButton.icon(
                                   onPressed: () {}, 
                                   style: ButtonStyle(
+                                    visualDensity: VisualDensity.standard,
                                     elevation: const MaterialStatePropertyAll(0),
                                     backgroundColor: const MaterialStatePropertyAll(Colors.lightGreen),
+                                    foregroundColor: MaterialStatePropertyAll(Colors.grey.shade100),
                                     padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 12, horizontal: 8)),
-                                    shape: MaterialStatePropertyAll(
-                                      RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(16)
-                                      )
-                                    )
                                   ),
-                                  icon: Icon(Icons.location_on, color: Colors.grey.shade100),
+                                  icon: const Icon(Icons.location_on),
                                   label: Text('Cari Lokasi',
                                     style: GoogleFonts.rubik(
-                                      color: Colors.grey.shade100,
                                       fontSize: 16,
                                       fontWeight: FontWeight.w500
                                     )
