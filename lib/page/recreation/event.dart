@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
+import '../../assets/dialog.dart';
+
 class Event extends StatelessWidget {
   const Event({super.key, required this.now});
 
@@ -54,13 +56,12 @@ class Event extends StatelessWidget {
                     Expanded(child: Divider(indent: 18, endIndent: 18, thickness: 2, color: Colors.grey.shade300)),
                     Row(
                       children: [
-                        Icon(Icons.date_range, size: 24, color: Colors.grey.shade600),
-                        const SizedBox(width: 8),
-                        Text('$startWeek - $endWeek',
-                          style: GoogleFonts.roboto(
+                        Text('2 Agenda',
+                          style: GoogleFonts.varelaRound(
                             color: Colors.grey.shade600,
                             fontSize: 20,
-                            fontWeight: FontWeight.w700
+                            fontWeight: FontWeight.w600,
+                            wordSpacing: 2
                           ),
                         ),
                       ],
@@ -368,7 +369,7 @@ class EventSheet extends StatelessWidget {
                       children: [
                         Icon(Icons.event, size: 28, color: Colors.grey.shade700),
                         const SizedBox(width: 16),
-                        Text(DateFormat('EEEE, dd MMMM').format(DateTime.now()),
+                        Text(DateFormat('EEEE, dd MMMM', 'id').format(DateTime.now()),
                           style: GoogleFonts.varelaRound(
                             color: Colors.grey.shade700,
                             fontSize: 20,

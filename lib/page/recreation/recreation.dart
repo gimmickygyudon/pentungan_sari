@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
+import 'package:pentungan_sari/assets/dialog.dart';
 
 import '../../assets/weather.dart';
 import 'event.dart';
@@ -30,7 +33,7 @@ class _RecreationPageState extends State<RecreationPage> with SingleTickerProvid
   late DateTime lastDayOfMonth;
 
   List<String> tabsName = ['Wisata', 'Acara', 'Kegiatan'];
-  List<IconData> tabsIcon = [Icons.park_rounded, Icons.celebration_rounded, Icons.stadium];
+  List<IconData> tabsIcon = [Icons.park, Icons.celebration, Icons.stadium];
   List<IconData> unselectedtabsIcon = [Icons.park_outlined, Icons.celebration_outlined, Icons.stadium_outlined];
 
   @override
@@ -45,6 +48,7 @@ class _RecreationPageState extends State<RecreationPage> with SingleTickerProvid
     );
 
     lastDayOfMonth = DateTime(now.year, now.month, 0);
+    initializeDateFormatting();
     super.initState();
   }
 
@@ -63,6 +67,28 @@ class _RecreationPageState extends State<RecreationPage> with SingleTickerProvid
         bottom: false,
         child: Scaffold(
           backgroundColor: _tabController.index == 0 ? Colors.lightGreen : null,
+          floatingActionButton: Padding(
+            padding: const EdgeInsets.only(bottom: 86),
+            child: Padding(
+              padding: const EdgeInsets.all(8),
+              child: FloatingActionButton.extended(
+                heroTag: 'event_dialog',
+                backgroundColor: Colors.lightGreen.shade50,
+                foregroundColor: Colors.lightGreen.shade900,
+                splashColor: Colors.lightGreen.shade300,
+                elevation: 2,
+                highlightElevation: 0,
+                onPressed: () => showDialogEvent(context, 'event_dialog', now), 
+                icon: const Icon(Icons.add),
+                label: Text('Tambah Acara', 
+                  style: GoogleFonts.rubik(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500
+                  ),
+                ),
+              ),
+            ),
+          ),
           body: DefaultTabController(
             length: 3,
             child: NestedScrollView(
@@ -71,7 +97,7 @@ class _RecreationPageState extends State<RecreationPage> with SingleTickerProvid
                   SliverAppBar(
                     leading: IconButton(
                       onPressed: () {}, 
-                      icon: const Icon(Icons.menu, color: Colors.white)
+                      icon: const Icon(Icons.menu, color: Colors.white, size: 28)
                     ),
                     pinned: true,
                     expandedHeight: _tabController.index == 1 ? 286 : 226,
@@ -111,7 +137,7 @@ class _RecreationPageState extends State<RecreationPage> with SingleTickerProvid
                                   child: _tabController.index == 1 ? Padding(
                                     padding: const EdgeInsets.symmetric(vertical: 4),
                                     child: DropdownButton(
-                                      value: 'Februari',
+                                      value: '${now.day} ${DateFormat('MMMM', 'id').format(now)} ${now.year}',
                                       onChanged: (value) {},
                                       underline: const SizedBox(),
                                       icon: Transform.translate(
@@ -120,13 +146,14 @@ class _RecreationPageState extends State<RecreationPage> with SingleTickerProvid
                                       ),
                                       style: GoogleFonts.rubik(
                                         color: Colors.white,
+                                        wordSpacing: 4,
                                         fontSize: 28,
                                         fontWeight: FontWeight.w400
                                       ),
-                                      items: const [
+                                      items: [
                                         DropdownMenuItem(
-                                          value: 'Februari',
-                                          child: Text('Februari')
+                                          value: '${now.day} ${DateFormat('MMMM', 'id').format(now)} ${now.year}',
+                                          child: Text('${now.day} ${DateFormat('MMMM', 'id').format(now)} ${now.year}')
                                         ) 
                                       ], 
                                     ),
@@ -213,7 +240,8 @@ class _RecreationPageState extends State<RecreationPage> with SingleTickerProvid
                           ),
                           child: Text(
                             'Pesan Tempat', 
-                            style: GoogleFonts.signikaNegative(
+                            style: GoogleFonts.rubik(
+                              letterSpacing: -0.25,
                               fontSize: 18,
                               fontWeight: FontWeight.w500
                             )
@@ -235,6 +263,7 @@ class _RecreationPageState extends State<RecreationPage> with SingleTickerProvid
                       ),
                       labelColor: Colors.white,
                       labelStyle: GoogleFonts.rubik(
+                        letterSpacing: -0.25,
                         fontSize: 20,
                         fontWeight: FontWeight.w500
                       ),
@@ -244,7 +273,10 @@ class _RecreationPageState extends State<RecreationPage> with SingleTickerProvid
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(_tabController.index == index ? tabsIcon[index] : unselectedtabsIcon[index]),
+                              Icon(_tabController.index == index 
+                                ? tabsIcon[index] : unselectedtabsIcon[index],
+                                size: 28,
+                              ),
                               const SizedBox(width: 8),
                               Text(tabsName[index])
                             ],

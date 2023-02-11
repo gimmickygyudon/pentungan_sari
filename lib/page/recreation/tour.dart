@@ -115,6 +115,7 @@ class Tour extends StatelessWidget {
                       const SizedBox(width: 8),
                       Text('Fasilitas  /  Tempat',
                         style: GoogleFonts.rubik(
+                          letterSpacing: -0.5,
                           fontSize: 22,
                           color: Colors.grey.shade700
                         )

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:pentungan_sari/assets/dialog.dart';
 
 class PoolPage extends StatefulWidget {
   const PoolPage({super.key});
@@ -90,20 +91,25 @@ class _PoolPageState extends State<PoolPage> {
                     children: [
                       Hero(
                         tag: 'pool_1.jpg',
-                        child: PageView.builder(
-                          onPageChanged: (value) {
-                            setState(() {
-                              page = value;
-                            });
+                        child: GestureDetector(
+                          onTap: () { 
+                            showDialogImage(context, 'images/pool_${page + 1}.jpg', 'pool_1.jpg'); 
                           },
-                          controller: _pageController,
-                          itemCount: 3,
-                          itemBuilder: (context, index) {
-                            return Image.asset(
-                              'images/pool_${index + 1}.jpg',
-                              fit: BoxFit.cover,
-                            );
-                          },
+                          child: PageView.builder(
+                            onPageChanged: (value) {
+                              setState(() {
+                                page = value;
+                              });
+                            },
+                            controller: _pageController,
+                            itemCount: 3,
+                            itemBuilder: (context, index) {
+                              return Image.asset(
+                                'images/pool_${index + 1}.jpg',
+                                fit: BoxFit.cover,
+                              );
+                            },
+                          ),
                         ),
                       ),
                       Align(
@@ -418,14 +424,12 @@ class _PoolPageState extends State<PoolPage> {
                                       Text('Dibawah Pengawasan Orang Tua / Wali',
                                         style: GoogleFonts.roboto(
                                           color: Colors.grey,
-                                          wordSpacing: -0.25,
-                                          fontStyle: FontStyle.italic,
                                           fontWeight: FontWeight.w500,
                                           height: 1.5
                                         ),
                                       ),
                                       const SizedBox(width: 4),
-                                      const Icon(Icons.privacy_tip, color: Colors.grey, size: 16),
+                                      const Icon(Icons.info, color: Colors.grey, size: 16),
                                       const SizedBox(width: 4),
                                     ],
                                   ),
@@ -478,7 +482,8 @@ class _PoolPageState extends State<PoolPage> {
                                     ),
                                     subtitle: Text('Alat Renang',
                                       style: GoogleFonts.roboto(
-                                        color: Colors.grey,
+                                        color: Colors.grey.shade400,
+                                        fontWeight: FontWeight.w500,
                                         height: 1.5,
                                       ),
                                     ),
@@ -537,7 +542,8 @@ class _PoolPageState extends State<PoolPage> {
                                     ),
                                     subtitle: Text('Alat Renang',
                                       style: GoogleFonts.roboto(
-                                        color: Colors.grey,
+                                        color: Colors.grey.shade400,
+                                        fontWeight: FontWeight.w500,
                                         height: 1.5,
                                       ),
                                     ),
