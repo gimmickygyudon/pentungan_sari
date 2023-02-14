@@ -3,6 +3,7 @@ import 'package:pentungan_sari/page/page.dart';
 import 'package:pentungan_sari/page/recreation/pool.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() {
   runApp(const MyApp());
@@ -29,6 +30,11 @@ class MyApp extends StatelessWidget {
           selectionHandleColor: Colors.lightGreen
         ),
       ),
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       builder: (context, child) {
         return MediaQuery(
           data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),

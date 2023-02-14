@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:pentungan_sari/assets/dialog.dart';
@@ -38,6 +37,10 @@ class _RecreationPageState extends State<RecreationPage> with SingleTickerProvid
   List<IconData> unselectedtabsIcon = [Icons.park_outlined, Icons.celebration_outlined, Icons.stadium_outlined];
 
   double headerHeight = 206;
+  
+  void setDate(DateTime value) {
+
+  }
 
   @override
   void initState() {
@@ -49,7 +52,7 @@ class _RecreationPageState extends State<RecreationPage> with SingleTickerProvid
             headerHeight = 206;
             break;
           case 1:
-            headerHeight = 286;
+            headerHeight = 270;
             break;
           default: headerHeight = 206;
         }
@@ -57,7 +60,7 @@ class _RecreationPageState extends State<RecreationPage> with SingleTickerProvid
     });
 
     _weatherController = ScrollController(
-      initialScrollOffset: today * 48
+      initialScrollOffset: today * 42
     );
 
     lastDayOfMonth = DateTime(now.year, now.month, 0);
@@ -132,12 +135,12 @@ class _RecreationPageState extends State<RecreationPage> with SingleTickerProvid
                       shadowColor: Colors.black54,
                       titleSpacing: 0.0,
                       title: Text(widget.title, 
-                        style: GoogleFonts.nunito(
+                        style: GoogleFonts.lora(
                           shadows: [ 
                             Shadow(
-                              color: Colors.lightBlue.shade200,
-                              blurRadius: 8,
-                              offset: const Offset(1, 1)
+                              color: Colors.lightBlue.shade400,
+                              blurRadius: 4,
+                              offset: const Offset(0, 0)
                             )
                           ],
                           color: Colors.grey.shade100,
@@ -153,45 +156,10 @@ class _RecreationPageState extends State<RecreationPage> with SingleTickerProvid
                       ),
                       flexibleSpace: FlexibleSpaceBar(
                         background: Padding(
-                          padding: const EdgeInsets.only(left: 32, top: 58, right: 32, bottom: 54),
+                          padding: EdgeInsets.only(left: 32, top: _tabController.index == 1 ? 64 : 64, right: 32, bottom: 44),
                           child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              AnimatedSize(
-                                curve: Curves.fastOutSlowIn,
-                                duration: const Duration(milliseconds: 300),
-                                child: SizedBox(
-                                  height: _tabController.index == 1 ? null : 0,
-                                  width: null,
-                                  child: AnimatedSwitcher(
-                                    duration: const Duration(milliseconds: 300),
-                                    child: _tabController.index == 1 ? Padding(
-                                      padding: const EdgeInsets.only(top: 10, bottom: 0),
-                                      child: DropdownButton(
-                                        value: '${now.day} ${DateFormat('MMMM', 'id').format(now)} ${now.year}',
-                                        onChanged: (value) {},
-                                        underline: const SizedBox(),
-                                        icon: Transform.translate(
-                                          offset: const Offset(5, 0),
-                                          child: const Icon(Icons.expand_more, size: 30, color: Colors.white)
-                                        ),
-                                        style: GoogleFonts.rubik(
-                                          color: Colors.white,
-                                          wordSpacing: 4,
-                                          letterSpacing: -0.5,
-                                          fontSize: 28,
-                                          fontWeight: FontWeight.w500
-                                        ),
-                                        items: [
-                                          DropdownMenuItem(
-                                            value: '${now.day} ${DateFormat('MMMM', 'id').format(now)} ${now.year}',
-                                            child: Text('${now.day} ${DateFormat('MMMM', 'id').format(now)} ${now.year}')
-                                          ) 
-                                        ], 
-                                      ),
-                                    ) : null,
-                                  ),
-                                ),
-                              ),
                               Expanded(
                                 child: AnimatedSwitcher(
                                   duration: const Duration(milliseconds: 400),
@@ -205,7 +173,7 @@ class _RecreationPageState extends State<RecreationPage> with SingleTickerProvid
                                       Widget widget = Padding(
                                         padding: const EdgeInsets.all(4),
                                         child: Container(
-                                          padding: const EdgeInsets.all(12),
+                                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                                           decoration: BoxDecoration(
                                             color: index == (today - 1)
                                               ? Colors.green.shade700 
@@ -218,17 +186,17 @@ class _RecreationPageState extends State<RecreationPage> with SingleTickerProvid
                                               Text(
                                                 (index + 1).toString(), 
                                                 style: GoogleFonts.rubik(
-                                                  color: Colors.white,
+                                                  color: index == (today - 1) ? Colors.white : Colors.white70,
                                                   fontSize: 16
                                                 )
                                               ),
                                               const SizedBox(height: 8),
-                                              Icon(weatherIcons[i], color: Colors.white),
+                                              Icon(weatherIcons[i], color: index == (today - 1) ? Colors.white : Colors.white70),
                                               const SizedBox(height: 4),
                                               Text(
                                                 days[i].substring(0, 3).toUpperCase(),
                                                 style: GoogleFonts.rubik(
-                                                  color: Colors.grey.shade300,
+                                                  color: index == (today - 1) ? Colors.white : Colors.white70,
                                                   fontSize: 14
                                                 ),
                                               )
@@ -240,7 +208,7 @@ class _RecreationPageState extends State<RecreationPage> with SingleTickerProvid
                                       return widget;
                                     }
                                   ) : ListTile(
-                                    contentPadding: EdgeInsets.zero,
+                                    contentPadding: const EdgeInsets.only(top: 0),
                                     title: const Padding(
                                       padding: EdgeInsets.only(bottom: 4, top: 2),
                                       child: Text('Toyomarto - Singosari'),
@@ -258,6 +226,48 @@ class _RecreationPageState extends State<RecreationPage> with SingleTickerProvid
                                     subtitleTextStyle: GoogleFonts.rubik(
                                       fontSize: 20,
                                       fontWeight: FontWeight.w400
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 10),
+                                child: AnimatedSize(
+                                  curve: Curves.fastOutSlowIn,
+                                  duration: const Duration(milliseconds: 300),
+                                  child: SizedBox(
+                                    height: _tabController.index == 1 ? null : 0,
+                                    width: null,
+                                    child: AnimatedSwitcher(
+                                      duration: const Duration(milliseconds: 300),
+                                      child: _tabController.index == 1 ? TextButton(
+                                        onPressed: () {
+                                          showPickDate(context, now, setDate);
+                                        },
+                                        style: ButtonStyle(
+                                          visualDensity: VisualDensity.compact,
+                                          padding: const MaterialStatePropertyAll(EdgeInsets.only(left: 12)),
+                                          foregroundColor: const MaterialStatePropertyAll(Colors.white),
+                                          textStyle: MaterialStatePropertyAll(
+                                            GoogleFonts.rubik(
+                                              color: Colors.white,
+                                              wordSpacing: 6,
+                                              letterSpacing: -0.25,
+                                              fontSize: 20,
+                                            ),
+                                          )
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Text('${DateFormat('EEEE', 'id').format(now)}, ${now.day} ${DateFormat('MMMM', 'id').format(now)} ${now.year}'),
+                                            const Padding(
+                                              padding: EdgeInsets.only(left: 6, bottom: 2),
+                                              child: Icon(Icons.arrow_drop_down, size: 32, color: Colors.white),
+                                            ),
+                                          ],
+                                        )
+                                      ) : null,
                                     ),
                                   ),
                                 ),

@@ -19,7 +19,7 @@ class _PageState extends State<ContextPage> {
 
   @override
   void initState() {
-    _pageController = PageController(initialPage: 2, keepPage: true);
+    _pageController = PageController(initialPage: 1, keepPage: true);
     currentPage = _pageController.initialPage;
     super.initState();
   }
