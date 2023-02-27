@@ -18,6 +18,7 @@ class _PoolPageState extends State<PoolPage> {
 
   int page = 0;
   bool pageScrolled = false, bottomPage = false, favorite = false;
+  bool animate = false;
 
   @override
   void initState() {
@@ -36,7 +37,11 @@ class _PoolPageState extends State<PoolPage> {
       }
     });
     super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) => setState(() => animate = true));
   }
+
+  void animating(bool value) => setState(() => animate = value); 
 
   final List<Map<String, dynamic>> facilities = [
     { 
@@ -80,11 +85,13 @@ class _PoolPageState extends State<PoolPage> {
                   backgroundColor: Colors.transparent,
                   leadingWidth: 110,
                   leading: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 400),
+                    switchInCurve: Curves.easeInOutCubic,
+                    switchOutCurve: Curves.easeInOutCubic,
+                    duration: const Duration(milliseconds: 500),
                     transitionBuilder: (child, animation) {
                       return ScaleTransition(scale: animation, child: child);
                     },
-                    child: pageScrolled ? null : Row(
+                    child: pageScrolled || !animate ? null : Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Container(
@@ -109,11 +116,13 @@ class _PoolPageState extends State<PoolPage> {
                   ),
                   actions: [
                     AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 400),
+                      switchInCurve: Curves.easeInOutCubic,
+                      switchOutCurve: Curves.easeInOutCubic,
+                      duration: const Duration(milliseconds: 500),
                       transitionBuilder: (child, animation) {
                         return ScaleTransition(scale: animation, child: child);
                       },
-                      child: pageScrolled ? null : Container(
+                      child: pageScrolled || !animate ? null : Container(
                         margin: const EdgeInsets.only(right: 28),
                         height: 46,
                         width: 46,
@@ -151,9 +160,10 @@ class _PoolPageState extends State<PoolPage> {
                       children: [
                         Hero(
                           tag: 'pool_1.jpg',
+                          transitionOnUserGestures: true,
                           child: GestureDetector(
                             onTap: () { 
-                              showDialogImage(context, 'images/pool_${page + 1}.jpg', 'pool_1.jpg'); 
+                              showDialogImage(context, 'images/pool_${page + 1}.jpg', 'pool_1.jpg', animating); 
                             },
                             child: PageView.builder(
                               onPageChanged: (value) {
@@ -174,28 +184,38 @@ class _PoolPageState extends State<PoolPage> {
                         ),
                         Align(
                           alignment: Alignment.bottomLeft,
-                          child: Container(
-                            padding: const EdgeInsets.fromLTRB(28, 16, 28, 8),
-                            decoration: BoxDecoration(
-                              color: Colors.grey.shade50,
-                              borderRadius: const BorderRadius.only(
-                                topRight: Radius.circular(16)
-                              )
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(FontAwesomeIcons.waterLadder, color: Colors.blue, size: 18),
-                                const SizedBox(width: 12),
-                                Text('KOLAM RENANG', 
-                                  style: GoogleFonts.rubik(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w500,
-                                    wordSpacing: -0.25,
-                                    color: Colors.grey.shade600
+                          child: AnimatedSlide(
+                            curve: Curves.easeOutCubic,
+                            duration: const Duration(milliseconds: 600),
+                            offset: Offset(animate ? 0 : -2, 0),
+                            child: AnimatedOpacity(
+                              curve: Curves.easeInCubic,
+                              duration: const Duration(milliseconds: 300),
+                              opacity: animate ? 1 : 0,
+                              child: Container(
+                                padding: const EdgeInsets.fromLTRB(28, 16, 28, 8),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey.shade50,
+                                  borderRadius: const BorderRadius.only(
+                                    topRight: Radius.circular(16)
                                   )
                                 ),
-                              ],
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(FontAwesomeIcons.waterLadder, color: Colors.blue, size: 18),
+                                    const SizedBox(width: 12),
+                                    Text('KOLAM RENANG', 
+                                      style: GoogleFonts.rubik(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w500,
+                                        wordSpacing: -0.25,
+                                        color: Colors.grey.shade600
+                                      )
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
                           ),
                         ),
@@ -326,8 +346,8 @@ class _PoolPageState extends State<PoolPage> {
                               ),
                               title: GestureDetector(
                                 onTap: () => Navigator.of(context).pop(),
-                                child: Row(
-                                  children: const [
+                                child: const Row(
+                                  children: [
                                     Icon(FontAwesomeIcons.waterLadder, color: Colors.blue, size: 18),
                                     SizedBox(width: 12),
                                     Text('KOLAM RENANG'),
@@ -368,387 +388,402 @@ class _PoolPageState extends State<PoolPage> {
                                 ),
                               ],
                             ) : null,
-                            body: ListView(
-                              padding: const EdgeInsets.fromLTRB(0, 0, 0, 28),
-                              shrinkWrap: true,
-                              children: [
-                                AnimatedSize(
-                                  duration: const Duration(milliseconds: 300),
-                                  child: SizedBox(height: pageScrolled ? 60 : 14),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 28),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            body: AnimatedSlide(
+                              curve: Curves.easeOutCubic,
+                              duration: const Duration(milliseconds: 500),
+                              offset: Offset(0, animate ? 0 : 0.25),
+                              child: AnimatedOpacity(
+                                curve: Curves.easeInCubic,
+                                duration: const Duration(milliseconds: 400),
+                                opacity: animate ? 1 : 0,
+                                child: ListView(
+                                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 28),
+                                  shrinkWrap: true,
+                                  children: [
+                                    AnimatedSize(
+                                      duration: const Duration(milliseconds: 300),
+                                      child: SizedBox(height: pageScrolled ? 60 : 14),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 28),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: [
-                                              Icon(Icons.height, color: Colors.grey.shade600),
-                                              const SizedBox(width: 8),
-                                              Text('Kedalaman: 1 m - 1.5 m', 
-                                                style: GoogleFonts.rubik(
-                                                  fontSize: 18,
-                                                  color: Colors.grey.shade600,
+                                              Row(
+                                                children: [
+                                                  Icon(Icons.height, color: Colors.grey.shade600),
+                                                  const SizedBox(width: 8),
+                                                  Text('Kedalaman: 1 m - 1.5 m', 
+                                                    style: GoogleFonts.rubik(
+                                                      fontSize: 18,
+                                                      color: Colors.grey.shade600,
+                                                    ),
+                                                  ),
+                                                ]
+                                              ),
+                                              Transform.translate(
+                                                offset: const Offset(0, 8),
+                                                child: const Image(
+                                                  image: AssetImage('images/bumdes.png'),
+                                                  height: 48,
                                                 ),
                                               ),
-                                            ]
+                                            ],
                                           ),
-                                          Transform.translate(
-                                            offset: const Offset(0, 8),
-                                            child: const Image(
-                                              image: AssetImage('images/bumdes.png'),
-                                              height: 48,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 12),
-                                      Text('Tentang Kolam Renang',
-                                        style: GoogleFonts.rubik(
-                                          color: Colors.grey.shade600,
-                                          wordSpacing: -0.25,
-                                          fontSize: 16,
-                                          height: 1.5
-                                        ),
-                                      ),
-                                      const SizedBox(height: 12),
-                                      Text('Kolam pentungan sari merupakan lahan yang dibuat untuk menampung air dalam jumlah tertentu sehingga dapat digunakan untuk wisata berenang.', 
-                                        textAlign: TextAlign.start,
-                                        style: GoogleFonts.roboto(
-                                          color: Colors.grey.shade500,
-                                          fontSize: 16,
-                                          letterSpacing: 0.5,
-                                          height: 1.5
-                                        ),
-                                      ),
-                                      const SizedBox(height: 12),
-                                      Text('Sejarah munculnya Pentungan Sari, adalah ketika para warga mengurutkan jumlah dari sumber air tersebut, ditemukan sumber dengan air yang sangat bersih. Warga sekitar menganggap sumber dengan air yang jernih tersebut sebagai sari atau inti dari air yang mengalir ke Pentungan Berek.', 
-                                        textAlign: TextAlign.start,
-                                        style: GoogleFonts.roboto(
-                                          color: Colors.grey.shade500,
-                                          fontSize: 16,
-                                          letterSpacing: 0.5,
-                                          height: 1.5
-                                        ),
-                                      ),
-                                      const SizedBox(height: 32),
-                                      Text('Peraturan',
-                                        style: GoogleFonts.rubik(
-                                          color: Colors.grey.shade600,
-                                          wordSpacing: -0.25,
-                                          fontSize: 16,
-                                          height: 1.5
-                                        ),
-                                      ),
-                                      const SizedBox(height: 12),
-                                      Column(
-                                        children: [
-                                          Container(
-                                            padding: const EdgeInsets.fromLTRB(14, 12, 22, 12),
-                                            decoration: BoxDecoration(
-                                              color: Colors.blue.shade50,
-                                              borderRadius: BorderRadius.circular(10)
-                                            ),
-                                            child: Row(
-                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                              children: [
-                                                Row(
-                                                  children: [
-                                                    const Icon(Icons.face,
-                                                      color: Colors.blue,
-                                                    ),
-                                                    const SizedBox(width: 16),
-                                                    Text('Usia / Umur', 
-                                                      style: GoogleFonts.varelaRound(
-                                                        fontSize: 16,
-                                                        fontWeight: FontWeight.w500,
-                                                        color: Colors.blue.shade600,
-                                                        letterSpacing: -0.25,
-                                                        height: 1.5,
-                                                      ),
-                                                    ),
-                                                  ]
-                                                ),
-                                                Text('8 Tahun', 
-                                                  style: GoogleFonts.rubik(
-                                                    color: Colors.blue.shade600,
-                                                    fontSize: 16,
-                                                    fontWeight: FontWeight.w500,
-                                                  )
-                                                )
-                                              ],
+                                          const SizedBox(height: 12),
+                                          Text('Tentang Kolam Renang',
+                                            style: GoogleFonts.rubik(
+                                              color: Colors.grey.shade600,
+                                              wordSpacing: -0.25,
+                                              fontSize: 16,
+                                              height: 1.5
                                             ),
                                           ),
                                           const SizedBox(height: 12),
-                                          Container(
-                                            padding: const EdgeInsets.fromLTRB(14, 12, 22, 12),
-                                            decoration: BoxDecoration(
-                                              color: Colors.blue.shade50,
-                                              borderRadius: BorderRadius.circular(10)
-                                            ),
-                                            child: Row(
-                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                              children: [
-                                                Row(
-                                                  children: [
-                                                    const Icon(Icons.accessibility,
-                                                      color: Colors.blue,
-                                                    ),
-                                                    const SizedBox(width: 16),
-                                                    Text('Tinggi Badan', 
-                                                      style: GoogleFonts.varelaRound(
-                                                        fontSize: 16,
-                                                        fontWeight: FontWeight.w500,
-                                                        color: Colors.blue.shade600,
-                                                        letterSpacing: -0.25,
-                                                        height: 1.5,
-                                                      ),
-                                                    ),
-                                                  ]
-                                                ),
-                                                Text('120cm', 
-                                                  style: GoogleFonts.rubik(
-                                                    color: Colors.blue.shade600,
-                                                    fontSize: 16,
-                                                    fontWeight: FontWeight.w500,
-                                                  )
-                                                )
-                                              ],
+                                          Text('Kolam pentungan sari merupakan lahan yang dibuat untuk menampung air dalam jumlah tertentu sehingga dapat digunakan untuk wisata berenang.', 
+                                            textAlign: TextAlign.start,
+                                            style: GoogleFonts.roboto(
+                                              color: Colors.grey.shade500,
+                                              fontSize: 16,
+                                              letterSpacing: 0.5,
+                                              height: 1.5
                                             ),
                                           ),
                                           const SizedBox(height: 12),
-                                          Container(
-                                            padding: const EdgeInsets.fromLTRB(14, 12, 22, 12),
-                                            decoration: BoxDecoration(
-                                              color: Colors.red.shade50,
-                                              borderRadius: BorderRadius.circular(10)
+                                          Text('Sejarah munculnya Pentungan Sari, adalah ketika para warga mengurutkan jumlah dari sumber air tersebut, ditemukan sumber dengan air yang sangat bersih. Warga sekitar menganggap sumber dengan air yang jernih tersebut sebagai sari atau inti dari air yang mengalir ke Pentungan Berek.', 
+                                            textAlign: TextAlign.start,
+                                            style: GoogleFonts.roboto(
+                                              color: Colors.grey.shade500,
+                                              fontSize: 16,
+                                              letterSpacing: 0.5,
+                                              height: 1.5
                                             ),
-                                            child: Row(
-                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                              children: [
-                                                Expanded(
-                                                  child: Row(
-                                                    children: [
-                                                      const Icon(Icons.no_meals,
-                                                        color: Colors.red,
-                                                      ),
-                                                      const SizedBox(width: 16),
-                                                      Expanded(
-                                                        child: Text('Dilarang membawa makanan / makan di dekat kolam', 
+                                          ),
+                                          const SizedBox(height: 32),
+                                          Text('Peraturan',
+                                            style: GoogleFonts.rubik(
+                                              color: Colors.grey.shade600,
+                                              wordSpacing: -0.25,
+                                              fontSize: 16,
+                                              height: 1.5
+                                            ),
+                                          ),
+                                          const SizedBox(height: 12),
+                                          Column(
+                                            children: [
+                                              Container(
+                                                padding: const EdgeInsets.fromLTRB(14, 12, 22, 12),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.blue.shade50,
+                                                  borderRadius: BorderRadius.circular(10)
+                                                ),
+                                                child: Row(
+                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                  children: [
+                                                    Row(
+                                                      children: [
+                                                        const Icon(Icons.face,
+                                                          color: Colors.blue,
+                                                        ),
+                                                        const SizedBox(width: 16),
+                                                        Text('Usia / Umur', 
                                                           style: GoogleFonts.varelaRound(
                                                             fontSize: 16,
                                                             fontWeight: FontWeight.w500,
-                                                            color: Colors.red.shade600,
+                                                            color: Colors.blue.shade600,
                                                             letterSpacing: -0.25,
                                                             height: 1.5,
                                                           ),
                                                         ),
-                                                      ),
-                                                    ]
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          const SizedBox(height: 8),
-                                          Row(
-                                            mainAxisAlignment: MainAxisAlignment.end,
-                                            children: [
-                                              Text('Dibawah Pengawasan Orang Tua / Wali',
-                                                style: GoogleFonts.roboto(
-                                                  color: Colors.grey,
-                                                  fontWeight: FontWeight.w500,
-                                                  height: 1.5
+                                                      ]
+                                                    ),
+                                                    Text('8 Tahun', 
+                                                      style: GoogleFonts.rubik(
+                                                        color: Colors.blue.shade600,
+                                                        fontSize: 16,
+                                                        fontWeight: FontWeight.w500,
+                                                      )
+                                                    )
+                                                  ],
                                                 ),
                                               ),
-                                              const SizedBox(width: 4),
-                                              const Icon(Icons.info, color: Colors.grey, size: 16),
-                                              const SizedBox(width: 4),
+                                              const SizedBox(height: 12),
+                                              Container(
+                                                padding: const EdgeInsets.fromLTRB(14, 12, 22, 12),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.blue.shade50,
+                                                  borderRadius: BorderRadius.circular(10)
+                                                ),
+                                                child: Row(
+                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                  children: [
+                                                    Row(
+                                                      children: [
+                                                        const Icon(Icons.accessibility,
+                                                          color: Colors.blue,
+                                                        ),
+                                                        const SizedBox(width: 16),
+                                                        Text('Tinggi Badan', 
+                                                          style: GoogleFonts.varelaRound(
+                                                            fontSize: 16,
+                                                            fontWeight: FontWeight.w500,
+                                                            color: Colors.blue.shade600,
+                                                            letterSpacing: -0.25,
+                                                            height: 1.5,
+                                                          ),
+                                                        ),
+                                                      ]
+                                                    ),
+                                                    Text('120cm', 
+                                                      style: GoogleFonts.rubik(
+                                                        color: Colors.blue.shade600,
+                                                        fontSize: 16,
+                                                        fontWeight: FontWeight.w500,
+                                                      )
+                                                    )
+                                                  ],
+                                                ),
+                                              ),
+                                              const SizedBox(height: 12),
+                                              Container(
+                                                padding: const EdgeInsets.fromLTRB(14, 12, 22, 12),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.red.shade50,
+                                                  borderRadius: BorderRadius.circular(10)
+                                                ),
+                                                child: Row(
+                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                  children: [
+                                                    Expanded(
+                                                      child: Row(
+                                                        children: [
+                                                          const Icon(Icons.no_meals,
+                                                            color: Colors.red,
+                                                          ),
+                                                          const SizedBox(width: 16),
+                                                          Expanded(
+                                                            child: Text('Dilarang membawa makanan / makan di dekat kolam', 
+                                                              style: GoogleFonts.varelaRound(
+                                                                fontSize: 16,
+                                                                fontWeight: FontWeight.w500,
+                                                                color: Colors.red.shade600,
+                                                                letterSpacing: -0.25,
+                                                                height: 1.5,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ]
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              const SizedBox(height: 8),
+                                              Row(
+                                                mainAxisAlignment: MainAxisAlignment.end,
+                                                children: [
+                                                  Text('Dibawah Pengawasan Orang Tua / Wali',
+                                                    style: GoogleFonts.roboto(
+                                                      color: Colors.grey,
+                                                      fontWeight: FontWeight.w500,
+                                                      height: 1.5
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 4),
+                                                  const Icon(Icons.info, color: Colors.grey, size: 16),
+                                                  const SizedBox(width: 4),
+                                                ],
+                                              ),
+                                              const SizedBox(height: 8),
                                             ],
                                           ),
-                                          const SizedBox(height: 8),
                                         ],
                                       ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(height: 24),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal :28),
-                                  child: Text('Fasilitas / Menyediakan',
-                                    style: GoogleFonts.rubik(
-                                      color: Colors.grey.shade600,
-                                      wordSpacing: -0.25,
-                                      fontSize: 16,
-                                      height: 1.5
                                     ),
-                                  ),
-                                ),
-                                const SizedBox(height: 6),
-                                SizedBox(
-                                  height: 300,
-                                  child: GridView(
-                                    physics: const BouncingScrollPhysics(),
-                                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 28),
-                                    scrollDirection: Axis.horizontal,
-                                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 1,
-                                      mainAxisSpacing: 16,
-                                      mainAxisExtent: 250
+                                    const SizedBox(height: 24),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal :28),
+                                      child: Text('Fasilitas / Menyediakan',
+                                        style: GoogleFonts.rubik(
+                                          color: Colors.grey.shade600,
+                                          wordSpacing: -0.25,
+                                          fontSize: 16,
+                                          height: 1.5
+                                        ),
+                                      ),
                                     ),
-                                    children: List.generate(facilities.length, (index) {
-                                      return StatefulBuilder(
-                                        builder: (context, setState) {
-                                          return PhysicalShape(
-                                            color: Colors.transparent,
-                                            elevation: 4,
-                                            shadowColor: Colors.black38,
-                                            clipBehavior: Clip.antiAlias,
-                                            clipper: ShapeBorderClipper(
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(10.0),
-                                              ),
-                                            ),
-                                            child: GridTile(
-                                              footer: GridTileBar(
-                                                backgroundColor: Colors.white,
-                                                title: Text(facilities[index]['name'],
-                                                  style: GoogleFonts.varelaRound(
-                                                    color: Colors.grey.shade600,
-                                                    fontWeight: FontWeight.w600,
-                                                    fontSize: 16,
+                                    const SizedBox(height: 6),
+                                    SizedBox(
+                                      height: 300,
+                                      child: GridView(
+                                        physics: const BouncingScrollPhysics(),
+                                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 28),
+                                        scrollDirection: Axis.horizontal,
+                                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                          crossAxisCount: 1,
+                                          mainAxisSpacing: 16,
+                                          mainAxisExtent: 250
+                                        ),
+                                        children: List.generate(facilities.length, (index) {
+                                          return StatefulBuilder(
+                                            builder: (context, setState) {
+                                              return PhysicalShape(
+                                                color: Colors.transparent,
+                                                elevation: 4,
+                                                shadowColor: Colors.black38,
+                                                clipBehavior: Clip.antiAlias,
+                                                clipper: ShapeBorderClipper(
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius: BorderRadius.circular(10.0),
                                                   ),
                                                 ),
-                                                subtitle: Text('Alat Renang',
-                                                  style: GoogleFonts.roboto(
-                                                    color: Colors.grey.shade400,
-                                                    fontWeight: FontWeight.w500,
-                                                    fontSize: 16,
-                                                    height: 1.5,
-                                                    letterSpacing: -0.05
-                                                  ),
-                                                ),
-                                                trailing: IconButton(
-                                                  onPressed: () {
-                                                    setState(() {
-                                                      facilities[index]['favorite'] == true 
-                                                        ? facilities[index]['favorite'] = false
-                                                        : facilities[index]['favorite'] = true;
-                                                    });
-                                                    debugPrint(facilities[index]['favorite'].toString());
-                                                  },
-                                                  icon: facilities[index]['favorite'] 
-                                                    ? const Icon(Icons.favorite, color: Colors.red) 
-                                                    : const Icon(Icons.favorite_outline), 
-                                                  color: Colors.grey.shade600
-                                                ),
-                                              ),
-                                              header: GridTileBar(
-                                                leading: Transform.translate(
-                                                  offset: const Offset(0, 10),
-                                                  child: Container(
-                                                    margin: const EdgeInsets.symmetric(horizontal: 8),
-                                                    padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
-                                                    decoration: BoxDecoration(
-                                                      color: Colors.blue,
-                                                      borderRadius: BorderRadius.circular(8)
-                                                    ),
-                                                    child: Text(facilities[index]['price'],
-                                                      style: GoogleFonts.signikaNegative(
-                                                        color: Colors.white,
-                                                        height: 0,
+                                                child: GridTile(
+                                                  footer: GridTileBar(
+                                                    backgroundColor: Colors.white,
+                                                    title: Text(facilities[index]['name'],
+                                                      style: GoogleFonts.varelaRound(
+                                                        color: Colors.grey.shade600,
+                                                        fontWeight: FontWeight.w600,
                                                         fontSize: 16,
-                                                        fontWeight: FontWeight.w500
+                                                      ),
+                                                    ),
+                                                    subtitle: Text('Alat Renang',
+                                                      style: GoogleFonts.roboto(
+                                                        color: Colors.grey.shade400,
+                                                        fontWeight: FontWeight.w500,
+                                                        fontSize: 16,
+                                                        height: 1.5,
+                                                        letterSpacing: -0.05
+                                                      ),
+                                                    ),
+                                                    trailing: IconButton(
+                                                      onPressed: () {
+                                                        setState(() {
+                                                          facilities[index]['favorite'] == true 
+                                                            ? facilities[index]['favorite'] = false
+                                                            : facilities[index]['favorite'] = true;
+                                                        });
+                                                        debugPrint(facilities[index]['favorite'].toString());
+                                                      },
+                                                      icon: facilities[index]['favorite'] 
+                                                        ? const Icon(Icons.favorite, color: Colors.red) 
+                                                        : const Icon(Icons.favorite_outline), 
+                                                      color: Colors.grey.shade600
+                                                    ),
+                                                  ),
+                                                  header: GridTileBar(
+                                                    leading: Transform.translate(
+                                                      offset: const Offset(0, 10),
+                                                      child: Container(
+                                                        margin: const EdgeInsets.symmetric(horizontal: 8),
+                                                        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+                                                        decoration: BoxDecoration(
+                                                          color: Colors.blue,
+                                                          borderRadius: BorderRadius.circular(8)
+                                                        ),
+                                                        child: Text(facilities[index]['price'],
+                                                          style: GoogleFonts.signikaNegative(
+                                                            color: Colors.white,
+                                                            height: 0,
+                                                            fontSize: 16,
+                                                            fontWeight: FontWeight.w500
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  child: GestureDetector(
+                                                    onTap: () { 
+                                                      showDialogImage(context, 'images/${facilities[index]['image']}', facilities[index]['image']); 
+                                                    },
+                                                    child: Hero(
+                                                      tag: facilities[index]['image'],
+                                                      child: Image.asset(
+                                                        'images/${facilities[index]['image']}',
+                                                        fit: BoxFit.cover,
                                                       ),
                                                     ),
                                                   ),
                                                 ),
-                                              ),
-                                              child: GestureDetector(
-                                                onTap: () { 
-                                                  showDialogImage(context, 'images/${facilities[index]['image']}', facilities[index]['image']); 
-                                                },
-                                                child: Hero(
-                                                  tag: facilities[index]['image'],
-                                                  child: Image.asset(
-                                                    'images/${facilities[index]['image']}',
-                                                    fit: BoxFit.cover,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
+                                              );
+                                            }
                                           );
-                                        }
-                                      );
-                                    })
-                                  ),
+                                        })
+                                      ),
+                                    ),
+                                  ]
                                 ),
-                              ]
+                              ),
                             ),
                           ),
                         ),
-                        Card(
-                          margin: EdgeInsets.zero,
-                          color:  Colors.white,
-                          surfaceTintColor: Colors.white,
-                          elevation: 20,
-                          shadowColor: Colors.black,
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(20),
-                              topRight: Radius.circular(20),
-                            )
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Expanded(
-                                  flex: 2,
-                                  child: ElevatedButton.icon(
-                                    onPressed: () {}, 
-                                    style: ButtonStyle(
-                                      visualDensity: VisualDensity.standard,
-                                      elevation: const MaterialStatePropertyAll(0),
-                                      backgroundColor: MaterialStatePropertyAll(Colors.grey.shade100),
-                                      padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 12, horizontal: 8)),
-                                    ),
-                                    icon: Icon(Icons.call, color: Colors.grey.shade600),
-                                    label: Text('Kontak',
-                                      style: GoogleFonts.rubik(
-                                        color: Colors.grey.shade600,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w500
-                                      )
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 20),
-                                Expanded(
-                                  flex: 4,
-                                  child: ElevatedButton.icon(
-                                    onPressed: () {}, 
-                                    style: ButtonStyle(
-                                      visualDensity: VisualDensity.standard,
-                                      elevation: const MaterialStatePropertyAll(0),
-                                      backgroundColor: const MaterialStatePropertyAll(Colors.lightGreen),
-                                      foregroundColor: MaterialStatePropertyAll(Colors.grey.shade100),
-                                      padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 12, horizontal: 8)),
-                                    ),
-                                    icon: const Icon(Icons.location_on),
-                                    label: Text('Cari Lokasi',
-                                      style: GoogleFonts.rubik(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w500
-                                      )
+                        AnimatedSlide(
+                          curve: Curves.easeOutCubic,
+                          duration: const Duration(milliseconds: 500),
+                          offset: Offset(0, animate ? 0 : 3),
+                          child: Card(
+                            margin: EdgeInsets.zero,
+                            color:  Colors.white,
+                            surfaceTintColor: Colors.white,
+                            elevation: 20,
+                            shadowColor: Colors.black,
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(20),
+                                topRight: Radius.circular(20),
+                              )
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Expanded(
+                                    flex: 2,
+                                    child: ElevatedButton.icon(
+                                      onPressed: () {}, 
+                                      style: ButtonStyle(
+                                        visualDensity: VisualDensity.standard,
+                                        elevation: const MaterialStatePropertyAll(0),
+                                        backgroundColor: MaterialStatePropertyAll(Colors.grey.shade100),
+                                        padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 12, horizontal: 8)),
+                                      ),
+                                      icon: Icon(Icons.call, color: Colors.grey.shade600),
+                                      label: Text('Kontak',
+                                        style: GoogleFonts.rubik(
+                                          color: Colors.grey.shade600,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500
+                                        )
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ],
+                                  const SizedBox(width: 20),
+                                  Expanded(
+                                    flex: 4,
+                                    child: ElevatedButton.icon(
+                                      onPressed: () {}, 
+                                      style: ButtonStyle(
+                                        visualDensity: VisualDensity.standard,
+                                        elevation: const MaterialStatePropertyAll(0),
+                                        backgroundColor: const MaterialStatePropertyAll(Colors.lightGreen),
+                                        foregroundColor: MaterialStatePropertyAll(Colors.grey.shade100),
+                                        padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 12, horizontal: 8)),
+                                      ),
+                                      icon: const Icon(Icons.location_on),
+                                      label: Text('Cari Lokasi',
+                                        style: GoogleFonts.rubik(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500
+                                        )
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         )

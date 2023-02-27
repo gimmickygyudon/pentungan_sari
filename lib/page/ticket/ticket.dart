@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:pentungan_sari/function/string.dart';
 
 class TicketPage extends StatefulWidget {
   const TicketPage({
@@ -639,20 +640,7 @@ class _TicketPageState extends State<TicketPage> {
                                                           total = 0;
                                                         }
 
-                                                        int dots = 0;
-                                                        value = _formatNumber(value.replaceAll(',', ''));
-                                                        int diff = value.length - _totalController.text.length;
-
-                                                        int position = _totalController.text.length - _totalController.selection.base.offset;
-                                                        if (position < 6 && diff > 1) dots = 1;
-                                                        if (position < 3 && diff < 2 && diff != 0) dots = 1;
-                                                        if (position < 3 && diff > 1) dots = 2;
-
-                                                        _totalController.value = _totalController.value.copyWith(
-                                                          text: value, selection: TextSelection.collapsed(
-                                                            offset: _totalController.selection.base.offset + dots,
-                                                          ),
-                                                        );
+                                                        _totalController.value = currencyFormat(value, _totalController);
                                                         _ticketController.text = ticket.toString();
 
                                                         setState(() {

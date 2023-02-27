@@ -19,44 +19,47 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Pentungan Sari',
-      theme: ThemeData(
-        useMaterial3: true,
-        primarySwatch: Colors.lightGreen,
-        textSelectionTheme: const TextSelectionThemeData(
-          cursorColor: Colors.lightGreen,
-          selectionColor: Colors.lightGreen,
-          selectionHandleColor: Colors.lightGreen
-        ),
-      ),
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      builder: (context, child) {
-        return MediaQuery(
-          data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
-          child: ResponsiveWrapper.builder(
-            child,
-            maxWidth: 16000,
-            minWidth: 9000,
-            defaultScale: true,
-            breakpoints: [
-              const ResponsiveBreakpoint.resize(480, name: MOBILE),
-              const ResponsiveBreakpoint.autoScale(848, name: TABLET),
-              const ResponsiveBreakpoint.resize(1024, name: DESKTOP),
-              const ResponsiveBreakpoint.resize(1600, name: '4K'),
-            ]
+    return GestureDetector(
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      child: MaterialApp(
+        title: 'Pentungan Sari',
+        theme: ThemeData(
+          useMaterial3: true,
+          primarySwatch: Colors.lightGreen,
+          textSelectionTheme: const TextSelectionThemeData(
+            cursorColor: Colors.lightGreen,
+            selectionColor: Colors.lightGreen,
+            selectionHandleColor: Colors.lightGreen
           ),
-        );
-      },
-      routes: {
-        '/': (context) => const ContextPage(),
-        '/recreation/pool': (context) => const PoolPage(),
-      },
-      debugShowCheckedModeBanner: false,
+        ),
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        builder: (context, child) {
+          return MediaQuery(
+            data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+            child: ResponsiveWrapper.builder(
+              child,
+              maxWidth: 16000,
+              minWidth: 9000,
+              defaultScale: true,
+              breakpoints: [
+                const ResponsiveBreakpoint.resize(480, name: MOBILE),
+                const ResponsiveBreakpoint.autoScale(848, name: TABLET),
+                const ResponsiveBreakpoint.resize(1024, name: DESKTOP),
+                const ResponsiveBreakpoint.resize(1600, name: '4K'),
+              ]
+            ),
+          );
+        },
+        routes: {
+          '/': (context) => const ContextPage(),
+          '/recreation/pool': (context) => const PoolPage(),
+        },
+        debugShowCheckedModeBanner: false,
+      ),
     );
   }
 }

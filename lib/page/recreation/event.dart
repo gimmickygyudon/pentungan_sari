@@ -453,7 +453,7 @@ class EventSheet extends StatelessWidget {
                               children: [
                                 const Icon(Icons.schedule, color: Colors.grey),
                                 const SizedBox(width: 8),
-                                Text(time,
+                                Text(subtitle,
                                   style: GoogleFonts.roboto(
                                     color: Colors.grey,
                                     fontSize: 18,

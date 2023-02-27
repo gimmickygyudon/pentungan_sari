@@ -37,7 +37,10 @@ class _RecreationPageState extends State<RecreationPage> with SingleTickerProvid
   List<IconData> unselectedtabsIcon = [Icons.park_outlined, Icons.celebration_outlined, Icons.stadium_outlined];
 
   double headerHeight = 206;
-  
+  bool animate = false;
+  List<bool> animates = List.filled(3, false, growable: false);
+  void animating(bool value) => setState(() => animate = value);
+
   void setDate(DateTime value) {
 
   }
@@ -45,20 +48,6 @@ class _RecreationPageState extends State<RecreationPage> with SingleTickerProvid
   @override
   void initState() {
     _tabController = TabController(length: 3, vsync: this);
-    _tabController.addListener(() { 
-      setState(() {
-        switch (_tabController.index) {
-          case 0:
-            headerHeight = 206;
-            break;
-          case 1:
-            headerHeight = 270;
-            break;
-          default: headerHeight = 206;
-        }
-      });
-    });
-
     _weatherController = ScrollController(
       initialScrollOffset: today * 42
     );
@@ -66,6 +55,8 @@ class _RecreationPageState extends State<RecreationPage> with SingleTickerProvid
     lastDayOfMonth = DateTime(now.year, now.month, 0);
     initializeDateFormatting();
     super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) => setState(() => animates[0] = true));
   }
 
   @override
@@ -97,7 +88,7 @@ class _RecreationPageState extends State<RecreationPage> with SingleTickerProvid
                   backgroundColor: Colors.lightGreen.shade50,
                   foregroundColor: Colors.lightGreen.shade900,
                   splashColor: Colors.lightGreen.shade300,
-                  elevation: 2,
+                  elevation: 4,
                   highlightElevation: 0,
                   onPressed: () => showDialogEvent(context, 'event_dialog', now), 
                   icon: const Icon(Icons.add),
@@ -306,6 +297,26 @@ class _RecreationPageState extends State<RecreationPage> with SingleTickerProvid
                       bottom: TabBar(
                         controller: _tabController,
                         physics: const NeverScrollableScrollPhysics(),
+                        onTap: (value) {
+                          setState(() {
+                            switch (value) {
+                              case 0:
+                                headerHeight = 206;
+                                animates.setAll(0, List.filled(3, false));
+                                animates[0] = true;              
+                                print(animates.toString());
+                                break;
+                              case 1:
+                                headerHeight = 270;
+                                animates.setAll(0, List.filled(3, false));
+                                animates[1] = true;              
+                                print(animates.toString());
+                                break;
+                              default: 
+                                headerHeight = 206;
+                            }
+                          });
+                        },
                         splashBorderRadius: BorderRadius.circular(12),
                         dividerColor: Colors.transparent,
                         padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
@@ -346,7 +357,7 @@ class _RecreationPageState extends State<RecreationPage> with SingleTickerProvid
                   physics: const NeverScrollableScrollPhysics(),
                   controller: _tabController,
                   children: [
-                    Tour(),
+                    Tour(animate: animates[0]),
                     Event(now: now),
                     const Placeholder(),
                   ]

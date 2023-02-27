@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class Tour extends StatelessWidget {
-  Tour({super.key});
+  Tour({super.key, required this.animate});
   
   final List<String> parks = ['pool_1.jpg', 'gapura_1.jpg', 'gazebo_1.jpg', 'cafe_1.jpg'];
   final List<String> parksNames = ['Kolam', 'Gapura', 'Gazebo', 'Cafe'];
@@ -10,8 +10,11 @@ class Tour extends StatelessWidget {
   final List<String> facilities = ['Pendopo', 'Terapi Ikan', 'Mushola', 'Kamar Mandi'];
   final List<String> facilitiesNames = ['pendopo_1.jpg', 'therapy_1.jpg', 'mosque_1.jpg', 'toilet_1.jpg'];
 
+  final bool animate;
+
   @override
   Widget build(BuildContext context) {
+    int duration = 400;
     return Container(
       color: Colors.grey.shade50,
       child: SingleChildScrollView(
@@ -37,59 +40,71 @@ class Tour extends StatelessWidget {
                     padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
                     scrollDirection: Axis.horizontal,
                       children: List.generate(4, (index) {
+                        duration += 100;
                         return Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
                           child: Hero(
                             tag: parks[index],
-                            child: Card(
-                              elevation: 4,
-                              shadowColor: Colors.lightBlue,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(25.7)
-                              ),
-                              clipBehavior: Clip.antiAlias,
-                              child: InkWell(
-                                splashColor: Colors.lightBlue.withOpacity(0.5),
-                                highlightColor: Colors.lightBlue.withOpacity(0.25),
-                                onTap: () {
-                                  Future.delayed(const Duration(milliseconds: 150)).then((value) {
-                                    Navigator.of(context).pushNamed('/recreation/pool');
-                                  });
-                                },
-                                child: Ink.image(
-                                  height: 400,
-                                  width: 230,
-                                  image: AssetImage('images/${parks[index]}'),
-                                  fit: BoxFit.cover,
-                                  child: Container(
-                                    foregroundDecoration: BoxDecoration(
-                                      gradient: LinearGradient(
-                                        begin: Alignment.topCenter,
-                                        end: Alignment.bottomCenter,
-                                        stops: const [0.65, 1.0, 1.2],
-                                        colors: [ 
-                                          Colors.transparent,
-                                          Colors.lightBlue.withOpacity(0.2),
-                                          Colors.lightBlue
-                                        ]
-                                      )
-                                    ),
-                                    child: Align(
-                                      alignment: Alignment.bottomCenter,
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(16),
-                                        child: Text(parksNames[index],
-                                          style: GoogleFonts.varelaRound(
-                                            color: Colors.white,
-                                            fontSize: 30,
-                                            fontWeight: FontWeight.w600,
-                                            shadows: [ 
-                                              const Shadow(
-                                                color: Colors.black38,
-                                                offset: Offset(1, 1),
-                                                blurRadius: 2
-                                              )
+                            transitionOnUserGestures: true,
+                            child: AnimatedOpacity(
+                              opacity: animate ? 1 : 0,
+                              curve: Curves.easeInCubic,
+                              duration: Duration(milliseconds: duration),
+                              child: AnimatedSlide(
+                                offset: Offset(animate ? 0 : 2, 0),
+                                curve: Curves.easeOutCubic,
+                                duration: Duration(milliseconds: duration),
+                                child: Card(
+                                  elevation: 4,
+                                  shadowColor: Colors.lightBlue,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(25.7)
+                                  ),
+                                  clipBehavior: Clip.antiAlias,
+                                  child: InkWell(
+                                    splashColor: Colors.lightBlue.withOpacity(0.5),
+                                    highlightColor: Colors.lightBlue.withOpacity(0.25),
+                                    onTap: () {
+                                      Future.delayed(const Duration(milliseconds: 150)).then((value) {
+                                        Navigator.of(context).pushNamed('/recreation/pool');
+                                      });
+                                    },
+                                    child: Ink.image(
+                                      height: 400,
+                                      width: 230,
+                                      image: AssetImage('images/${parks[index]}'),
+                                      fit: BoxFit.cover,
+                                      child: Container(
+                                        foregroundDecoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            begin: Alignment.topCenter,
+                                            end: Alignment.bottomCenter,
+                                            stops: const [0.65, 1.0, 1.2],
+                                            colors: [ 
+                                              Colors.transparent,
+                                              Colors.lightBlue.withOpacity(0.2),
+                                              Colors.lightBlue
                                             ]
+                                          )
+                                        ),
+                                        child: Align(
+                                          alignment: Alignment.bottomCenter,
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(16),
+                                            child: Text(parksNames[index],
+                                              style: GoogleFonts.varelaRound(
+                                                color: Colors.white,
+                                                fontSize: 30,
+                                                fontWeight: FontWeight.w600,
+                                                shadows: [ 
+                                                  const Shadow(
+                                                    color: Colors.black38,
+                                                    offset: Offset(1, 1),
+                                                    blurRadius: 2
+                                                  )
+                                                ]
+                                              ),
+                                            ),
                                           ),
                                         ),
                                       ),
@@ -105,22 +120,32 @@ class Tour extends StatelessWidget {
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 32),
-                  child: Row(
-                    children: [
-                      Icon(
-                        size: 28,
-                        color: Colors.grey.shade700,
-                        Icons.storefront
+                  child: AnimatedOpacity(
+                    opacity: animate ? 1 : 0,
+                    curve: Curves.easeInCubic,
+                    duration: Duration(milliseconds: duration),
+                    child: AnimatedSlide(
+                      offset: Offset(animate ? 0 : 2, 0),
+                      curve: Curves.easeOutCubic,
+                      duration: Duration(milliseconds: duration),
+                      child: Row(
+                        children: [
+                          Icon(
+                            size: 28,
+                            color: Colors.grey.shade700,
+                            Icons.storefront
+                          ),
+                          const SizedBox(width: 8),
+                          Text('Fasilitas  /  Tempat',
+                            style: GoogleFonts.rubik(
+                              letterSpacing: -0.5,
+                              fontSize: 22,
+                              color: Colors.grey.shade700
+                            )
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 8),
-                      Text('Fasilitas  /  Tempat',
-                        style: GoogleFonts.rubik(
-                          letterSpacing: -0.5,
-                          fontSize: 22,
-                          color: Colors.grey.shade700
-                        )
-                      ),
-                    ],
+                    ),
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -131,86 +156,97 @@ class Tour extends StatelessWidget {
                     padding: const EdgeInsets.fromLTRB(18, 0, 12, 0),
                     scrollDirection: Axis.horizontal,
                     children: List.generate(facilities.length, (index) {
+                      duration += 100;
                       return Padding(
                         padding: const EdgeInsets.all(8),
-                        child: Card(
-                          elevation: 4,
-                          shadowColor: Colors.lightGreen,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(25.7)
-                          ),
-                          clipBehavior: Clip.antiAlias,
-                          child: InkWell(
-                            onTap: () {},
-                            onHover: (value) {},
-                            splashColor: Colors.lightGreen.withOpacity(0.5),
-                            highlightColor: Colors.lightGreen.withOpacity(0.25),
-                            child: Stack(
-                              children: [ 
-                                Ink.image(
-                                  height: 300,
-                                  width: 300,
-                                  image: AssetImage('images/${facilitiesNames[index]}'),
-                                  fit: BoxFit.cover
-                                ),
-                                Container(
-                                  width: 300,
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      begin: Alignment.topCenter,
-                                      end: Alignment.bottomCenter,
-                                      stops: const [0.65, 1.0, 1.2],
-                                      colors: [ 
-                                        Colors.transparent,
-                                        Colors.lightGreen.withOpacity(0.2),
-                                        Colors.lightGreen
-                                      ]
-                                    )
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(16),
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey.shade800,
-                                      borderRadius: BorderRadius.circular(12)
+                        child: AnimatedOpacity(
+                          opacity: animate ? 1 : 0,
+                          curve: Curves.easeInCubic,
+                          duration: Duration(milliseconds: duration),
+                          child: AnimatedSlide(
+                            offset: Offset(animate ? 0 : 2, 0),
+                            curve: Curves.easeOutCubic,
+                            duration: Duration(milliseconds: duration),
+                            child: Card(
+                              elevation: 4,
+                              shadowColor: Colors.lightGreen,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(25.7)
+                              ),
+                              clipBehavior: Clip.antiAlias,
+                              child: InkWell(
+                                onTap: () {},
+                                onHover: (value) {},
+                                splashColor: Colors.lightGreen.withOpacity(0.5),
+                                highlightColor: Colors.lightGreen.withOpacity(0.25),
+                                child: Stack(
+                                  children: [ 
+                                    Ink.image(
+                                      height: 300,
+                                      width: 300,
+                                      image: AssetImage('images/${facilitiesNames[index]}'),
+                                      fit: BoxFit.cover
                                     ),
-                                    child: Text(facilities[index], 
-                                      style: GoogleFonts.varelaRound(
-                                        color: Colors.white,
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w600
-                                      )
-                                    ),
-                                  ),
-                                ),
-                                Align(
-                                  alignment: Alignment.bottomCenter,
-                                  child: Padding(
-                                    padding: const EdgeInsets.fromLTRB(16, 16, 16 ,8),
-                                    child: ElevatedButton.icon(
-                                      style: ButtonStyle(
-                                        shape: MaterialStatePropertyAll(
-                                          RoundedRectangleBorder(borderRadius: BorderRadius.circular(25.7))
-                                        ),
-                                        backgroundColor: const MaterialStatePropertyAll(Colors.white),
-                                        foregroundColor: MaterialStatePropertyAll(Colors.grey.shade800)
-                                      ),
-                                      onPressed: () {}, 
-                                      icon: const Icon(Icons.location_on), 
-                                      label: Text('Cari Lokasi', 
-                                        style: GoogleFonts.varelaRound(
-                                          height: 0,
-                                          color: Colors.grey.shade800,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600
+                                    Container(
+                                      width: 300,
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                          begin: Alignment.topCenter,
+                                          end: Alignment.bottomCenter,
+                                          stops: const [0.65, 1.0, 1.2],
+                                          colors: [ 
+                                            Colors.transparent,
+                                            Colors.lightGreen.withOpacity(0.2),
+                                            Colors.lightGreen
+                                          ]
                                         )
                                       ),
-                                    )
-                                  ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(16),
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                        decoration: BoxDecoration(
+                                          color: Colors.grey.shade800,
+                                          borderRadius: BorderRadius.circular(12)
+                                        ),
+                                        child: Text(facilities[index], 
+                                          style: GoogleFonts.varelaRound(
+                                            color: Colors.white,
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w600
+                                          )
+                                        ),
+                                      ),
+                                    ),
+                                    Align(
+                                      alignment: Alignment.bottomCenter,
+                                      child: Padding(
+                                        padding: const EdgeInsets.fromLTRB(16, 16, 16 ,8),
+                                        child: ElevatedButton.icon(
+                                          style: ButtonStyle(
+                                            shape: MaterialStatePropertyAll(
+                                              RoundedRectangleBorder(borderRadius: BorderRadius.circular(25.7))
+                                            ),
+                                            backgroundColor: const MaterialStatePropertyAll(Colors.white),
+                                            foregroundColor: MaterialStatePropertyAll(Colors.grey.shade800)
+                                          ),
+                                          onPressed: () {}, 
+                                          icon: const Icon(Icons.location_on), 
+                                          label: Text('Cari Lokasi', 
+                                            style: GoogleFonts.varelaRound(
+                                              height: 0,
+                                              color: Colors.grey.shade800,
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600
+                                            )
+                                          ),
+                                        )
+                                      ),
+                                    ),
+                                  ]
                                 ),
-                              ]
+                              ),
                             ),
                           ),
                         ),
