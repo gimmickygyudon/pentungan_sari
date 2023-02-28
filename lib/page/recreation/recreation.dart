@@ -47,7 +47,7 @@ class _RecreationPageState extends State<RecreationPage> with SingleTickerProvid
 
   @override
   void initState() {
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 3, vsync: this, animationDuration: const Duration(milliseconds: 200));
     _weatherController = ScrollController(
       initialScrollOffset: today * 42
     );
@@ -304,13 +304,11 @@ class _RecreationPageState extends State<RecreationPage> with SingleTickerProvid
                                 headerHeight = 206;
                                 animates.setAll(0, List.filled(3, false));
                                 animates[0] = true;              
-                                print(animates.toString());
                                 break;
                               case 1:
                                 headerHeight = 270;
                                 animates.setAll(0, List.filled(3, false));
                                 animates[1] = true;              
-                                print(animates.toString());
                                 break;
                               default: 
                                 headerHeight = 206;

@@ -14,21 +14,29 @@ class Tour extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    int duration = 400;
+    int duration = 300;
     return Container(
       color: Colors.grey.shade50,
       child: SingleChildScrollView(
         child: Stack(
           children: [
-            Container(
-              height: 100,
-              decoration: const BoxDecoration(
-                borderRadius: BorderRadius.only(
-                  bottomRight: Radius.circular(50), 
-                  bottomLeft: Radius.circular(50)
+            AnimatedSwitcher(
+              switchInCurve: Curves.easeInOutCubic,
+              duration: const Duration(milliseconds: 400),
+              reverseDuration: Duration.zero,
+              transitionBuilder: (child, animation) {
+                return FadeTransition(opacity: animation, child: child);
+              },
+              child: animate ? Container(
+                height: 100,
+                decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                    bottomRight: Radius.circular(50), 
+                    bottomLeft: Radius.circular(50)
+                  ),
+                  color: Colors.lightGreen
                 ),
-                color: Colors.lightGreen
-              ),
+              ) : null,
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -40,7 +48,7 @@ class Tour extends StatelessWidget {
                     padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
                     scrollDirection: Axis.horizontal,
                       children: List.generate(4, (index) {
-                        duration += 100;
+                        duration += 50;
                         return Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
                           child: Hero(
@@ -49,7 +57,7 @@ class Tour extends StatelessWidget {
                             child: AnimatedOpacity(
                               opacity: animate ? 1 : 0,
                               curve: Curves.easeInCubic,
-                              duration: Duration(milliseconds: duration),
+                              duration: Duration(milliseconds: duration - 100),
                               child: AnimatedSlide(
                                 offset: Offset(animate ? 0 : 2, 0),
                                 curve: Curves.easeOutCubic,
@@ -123,7 +131,7 @@ class Tour extends StatelessWidget {
                   child: AnimatedOpacity(
                     opacity: animate ? 1 : 0,
                     curve: Curves.easeInCubic,
-                    duration: Duration(milliseconds: duration),
+                    duration: Duration(milliseconds: duration - 100),
                     child: AnimatedSlide(
                       offset: Offset(animate ? 0 : 2, 0),
                       curve: Curves.easeOutCubic,
@@ -156,13 +164,13 @@ class Tour extends StatelessWidget {
                     padding: const EdgeInsets.fromLTRB(18, 0, 12, 0),
                     scrollDirection: Axis.horizontal,
                     children: List.generate(facilities.length, (index) {
-                      duration += 100;
+                      duration += 50;
                       return Padding(
                         padding: const EdgeInsets.all(8),
                         child: AnimatedOpacity(
                           opacity: animate ? 1 : 0,
                           curve: Curves.easeInCubic,
-                          duration: Duration(milliseconds: duration),
+                          duration: Duration(milliseconds: duration - 100),
                           child: AnimatedSlide(
                             offset: Offset(animate ? 0 : 2, 0),
                             curve: Curves.easeOutCubic,

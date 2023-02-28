@@ -196,23 +196,20 @@ class _ShowDialogEventState extends State<ShowDialogEvent> {
     {
       'name': 'Pendopo',
       'image': 'pendopo_1.jpg',
-      'size': null,
-      'prize': 5000
+      'price': 5000
     }, {
       'name': 'Kolam',
       'image': 'pool_1.jpg',
       'size': null,
-      'prize': 0
+      'price': 0
     }, {
       'name': 'Halaman Depan',
-      'image': Icons.balcony,
-      'size': null,
-      'prize': 0
+      'image': 'frontyard_1.jpg',
+      'price': 0
     }, {
       'name': 'Gazebo',
-      'image': Icons.house_siding,
-      'size': null,
-      'prize': 0
+      'image': 'gazebo_2.jpg',
+      'price': 0
     }, 
   ];
 
@@ -230,7 +227,7 @@ class _ShowDialogEventState extends State<ShowDialogEvent> {
     if (toDate_.length == 1) toDate_ = '0$toDate_';
     toDate = '$toDate_:00';
 
-    _textGuestController = TextEditingController(text: '15');
+    _textGuestController = TextEditingController(text: '10');
     _textTitleController = TextEditingController();
     _textTitleFocusNode = FocusNode()..addListener(() {
       if (_textTitleFocusNode.hasFocus == false) _textTitleController.text = _textTitleController.text.toTitle();
@@ -250,17 +247,13 @@ class _ShowDialogEventState extends State<ShowDialogEvent> {
     super.dispose();
   }
 
-  void changeItems(int index, String item, dynamic value) {
-    addons[index][item] = value;
-  }
-
   void updateValidate() {
     int count = 0;
     if (_textTitleController.text.trim().isNotEmpty) {
       count++; 
     }
     if (_textGuestController.text == '0') _textGuestController.text = '';
-    if (_textGuestController.text.trim().isNotEmpty) {
+    if (_textGuestController.text.trim().isNotEmpty || _textGuestController.text != '0') {
       count++; 
       for (int i = 0; i < _textGuestController.text.length; i++) {
         if (_textGuestController.text.substring(0, i) == '0') { 
@@ -274,6 +267,7 @@ class _ShowDialogEventState extends State<ShowDialogEvent> {
     _countButtonKey.currentState?.setState(() {});
   }
 
+  void selectLocation(String location) => setState(() => selectedLocation = location);
   void selectItems(String name, bool select) {
     items.clear();
     int i = 0;
@@ -286,17 +280,12 @@ class _ShowDialogEventState extends State<ShowDialogEvent> {
     }
   }
 
-  void setTimerFrom(String time) {
-    setState(() {
-      fromDate = time;
-    });
-  }
-
-  void setTimerTo(String time) {
-    setState(() {
-      toDate = time;
-    });
-  }
+  void changeLocation(String index, int price, String item) => locations[locations.indexWhere((element) => element['name'] == index)][item] = price;
+  void changeItems(int index, String item, dynamic value) => addons[index][item] = value;
+  void changeGuest(int value) => _textGuestController.text = value.toString();
+  
+  void setTimerFrom(String time) => setState(() => fromDate = time);
+  void setTimerTo(String time) => setState(() => toDate = time);
 
   void setDate(DateTime now) {
     setState(() {
@@ -446,11 +435,11 @@ class _ShowDialogEventState extends State<ShowDialogEvent> {
                                                   GoogleFonts.rubik(letterSpacing: -0.25, fontSize: 16)
                                                 ),
                                                 iconSize: const MaterialStatePropertyAll(20),
-                                                foregroundColor: MaterialStatePropertyAll(Colors.grey.shade700)
+                                                foregroundColor: MaterialStatePropertyAll(Colors.blueGrey.shade700)
                                               ),
                                               icon: Icon(expandDescription ? Icons.remove : Icons.add, size: 16),
                                               label: const Text('Keterangan')
-                                            ) : Icon(Icons.add_card, color: Colors.grey.shade800),
+                                            ) : Icon(Icons.add_card, color: Colors.blueGrey.shade800),
                                           ),
                                         ],
                                       ),
@@ -521,14 +510,18 @@ class _ShowDialogEventState extends State<ShowDialogEvent> {
                                                   child: DropdownButtonFormField(
                                                     value: selectedLocation,
                                                     onChanged: (value) {
-                                                      setState(() {
-                                                        selectedLocation = value!;
-                                                      });
+                                                      setState(() => selectedLocation = value!);
+                                                      showLocationItem(context, 'location', selectedLocation,
+                                                        int.tryParse(_textGuestController.text), locations[locations.indexWhere((element) => element['name'] == selectedLocation)]['image'], 
+                                                        locations[locations.indexWhere((element) => element['name'] == selectedLocation)]['price'], changeLocation, changeGuest
+                                                      );
                                                     },
                                                     borderRadius: BorderRadius.circular(18),
                                                     elevation: 2,
                                                     dropdownColor: Colors.grey.shade100,
                                                     decoration: InputDecoration(
+                                                      focusColor: Colors.transparent,
+                                                      hoverColor: Colors.transparent,
                                                       contentPadding: const EdgeInsets.fromLTRB(0, 24, 0, 12),
                                                       label: Transform.translate(
                                                         offset: const Offset(-4, -14),
@@ -921,7 +914,7 @@ class _ShowDialogEventState extends State<ShowDialogEvent> {
                                         case 1:
                                           return ResultEvent(
                                             title: _textTitleController.text,
-                                            location: selectedLocation,
+                                            locations: locations[locations.indexWhere((element) => element['name'] == selectedLocation)],
                                             people: int.parse(_textGuestController.text),
                                             date: date,
                                             items: items,
@@ -962,7 +955,7 @@ class _ShowDialogEventState extends State<ShowDialogEvent> {
                                         padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 12, horizontal: 24)),
                                         surfaceTintColor: const MaterialStatePropertyAll(Colors.transparent),
                                         backgroundColor: const MaterialStatePropertyAll(Colors.white),
-                                        foregroundColor: MaterialStatePropertyAll(Colors.grey.shade400),
+                                        foregroundColor: const MaterialStatePropertyAll(Colors.grey),
                                         textStyle: MaterialStatePropertyAll(
                                           GoogleFonts.varelaRound(
                                             fontSize: 18,
@@ -1107,17 +1100,18 @@ class ResultEvent extends StatefulWidget {
   const ResultEvent({
     super.key, 
     required this.title, 
-    required this.location, 
     required this.date, 
     required this.people, 
     required this.items, 
-    required this.duration
+    required this.duration,
+    required this.locations
   });
 
-  final String title, location, date;
+  final String title, date;
   final int people, duration;
 
-  final List<Map<String, dynamic>> items;  
+  final List<Map<String, dynamic>> items;
+  final Map<String, dynamic> locations;
 
   static const _locale = 'id';
 
@@ -1155,7 +1149,7 @@ class _ResultEventState extends State<ResultEvent> {
 
   @override
   Widget build(BuildContext context) {
-    total = subtotal + ((widget.people * 5000) * 2);
+    total = subtotal + ((widget.people * widget.locations['price'] as int) * 2);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1221,7 +1215,7 @@ class _ResultEventState extends State<ResultEvent> {
                 ),
                 title: Padding(
                   padding: const EdgeInsets.only(bottom: 4),
-                  child: Text(widget.items[index]['name']),
+                  child: Text(widget.items[index]['name'].toString().toTitle()),
                 ),
                 titleTextStyle: GoogleFonts.rubik(
                   color: Colors.grey.shade800,
@@ -1314,7 +1308,7 @@ class _ResultEventState extends State<ResultEvent> {
                 children: [
                   Row(
                     children: [
-                      Text(widget.location, 
+                      Text(widget.locations['name'], 
                         style: GoogleFonts.rubik(
                           color: Colors.grey.shade600,
                           fontSize: 18,
@@ -1326,14 +1320,14 @@ class _ResultEventState extends State<ResultEvent> {
                       Chip(
                         backgroundColor: Colors.green.shade50,
                         side: BorderSide.none,
-                        padding: EdgeInsets.zero,
+                        padding: const EdgeInsets.only(right: 1),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25.7)),
                         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
                         label: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.info_outline, color: Colors.green.shade700, size: 14),
+                            Icon(Icons.people, color: Colors.green.shade700, size: 14),
                             const SizedBox(width: 6),
                             Text('${widget.people} Orang'),
                           ],
@@ -1345,7 +1339,7 @@ class _ResultEventState extends State<ResultEvent> {
                       )
                     ],
                   ),
-                  Text('+ $_currency. ${_formatNumber((widget.people * 5000).toString())}', 
+                  Text('${widget.locations['price'] == 0 ? '' : '+'} $_currency. ${_formatNumber((widget.people * widget.locations['price']).toString())}', 
                     style: GoogleFonts.rubik(
                       color: Colors.grey.shade600,
                       fontSize: 18,
@@ -1366,7 +1360,7 @@ class _ResultEventState extends State<ResultEvent> {
                       letterSpacing: -0.25
                     )
                   ),
-                  Text('+ $_currency. ${_formatNumber((widget.people * 5000).toString())}', 
+                  Text('+ $_currency. ${_formatNumber((widget.people * widget.locations['price']).toString())}', 
                     style: GoogleFonts.rubik(
                       color: Colors.grey.shade600,
                       fontSize: 18,
@@ -1415,6 +1409,410 @@ class _ResultEventState extends State<ResultEvent> {
           ),
         ),
       ],
+    );
+  }
+}
+
+void showLocationItem(BuildContext context, String tag, String location, int? tamu, String image, int price, Function changeLocation, Function changeGuest) {
+  Navigator.push(context, PageRouteBuilder(
+    fullscreenDialog: true,
+    opaque: false,
+    barrierDismissible: true,
+    barrierColor: Colors.black54,
+    pageBuilder: (context, animation, secondaryAnimation) {
+      return ShowLocationItem(tag: tag, image: image, location: location, tamu: tamu, price: price, changeLocation: changeLocation, changeGuest: changeGuest);
+    })
+  );
+}
+
+class ShowLocationItem extends StatefulWidget {
+  const ShowLocationItem({
+    super.key, 
+    required this.location, 
+    required this.image, 
+    required this.tag, 
+    required this.changeLocation, 
+    required this.tamu,
+    required this.price,
+    required this.changeGuest
+  });
+  
+  final String location, tag, image;
+  final Function changeLocation, changeGuest;
+
+  final int? tamu;
+  final int price;
+
+  @override
+  State<ShowLocationItem> createState() => _ShowLocationItemState();
+}
+
+class _ShowLocationItemState extends State<ShowLocationItem> {
+
+  bool _first = false;
+
+  late TextEditingController _textEditingController, _textEditingCurrencyController;
+  late int tamu, tamu_;
+  
+  String _formatNumber(String s) => NumberFormat.decimalPattern(ResultEvent._locale).format(int.parse(s));
+  String get _currency => NumberFormat.compactSimpleCurrency(locale: ResultEvent._locale).currencySymbol;
+
+  @override
+  void initState() {
+    if (widget.tamu != null) { 
+      tamu = widget.tamu!;
+      tamu_ = widget.tamu!;
+    } else { tamu = 0; tamu_ = 0; }
+    WidgetsBinding.instance.addPostFrameCallback((_) => setState(() => _first = true));
+
+    _textEditingController = TextEditingController(text: tamu.toString());
+    _textEditingCurrencyController = TextEditingController(text: _formatNumber(widget.price.toString()));
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    int total = int.parse(_textEditingController.text) * int.parse(_textEditingCurrencyController.text.replaceAll('.', ''));
+    return WillPopScope(
+      onWillPop: () async {
+        setState(() => _first = false);
+        return true;
+      },
+      child: Theme(
+        data: ThemeData(useMaterial3: true),
+        child: AnimatedScale(
+          scale: _first ? 1 : 0.8,
+          curve: Curves.easeInOutCubic,
+          duration: const Duration(milliseconds: 300),
+          child: AnimatedOpacity(
+            opacity: _first ? 1 : 0,
+            curve: Curves.easeInOutCubic,
+            duration: const Duration(milliseconds: 300),
+            child: Scaffold(
+              backgroundColor: Colors.transparent,
+              body: Center(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(16),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Container(
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                      ),
+                      child: AnimatedScale(
+                        scale: _first ? 1 : 0.8,
+                        curve: Curves.easeInOutCubic,
+                        duration: const Duration(milliseconds: 400),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            GestureDetector(
+                              onTap: () => showDialogImage(context, 'images/${widget.image}', widget.location),
+                              child: Hero(
+                                tag: widget.location,
+                                child: Container(
+                                  margin: const EdgeInsets.all(24),
+                                  clipBehavior: Clip.antiAlias,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(12)
+                                  ),
+                                  child: Image.asset('images/${widget.image}', fit: BoxFit.cover),
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 48),
+                              child: Column(
+                                children: [
+                                  Text(widget.location, 
+                                    style: GoogleFonts.varelaRound(
+                                      color: Colors.grey.shade800,
+                                      fontSize: 20,
+                                      decoration: TextDecoration.none
+                                    )
+                                  ),
+                                  Text('Pilih / Ubah harga sewa ${widget.location} yang akan ditempati oleh tamu.',
+                                    textAlign: TextAlign.center,
+                                    style: GoogleFonts.rubik(
+                                      color: Colors.grey.shade600,
+                                      fontSize: 16,
+                                      height: 1.5,
+                                      decoration: TextDecoration.none
+                                    )
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 26),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    margin: const EdgeInsets.symmetric(horizontal: 8),
+                                    color: Colors.grey.shade400,
+                                    height: 5,
+                                    width: 5
+                                  ),
+                                  Text(total != 0
+                                    ? '${_textEditingController.text} x ${_textEditingCurrencyController.text} = $_currency. ${_formatNumber(total.toString())}'
+                                    : 'Gratis',
+                                    style: GoogleFonts.rubik(
+                                      color: Colors.grey,
+                                      fontSize: 16
+                                    )
+                                  ),
+                                  Container(
+                                    margin: const EdgeInsets.symmetric(horizontal: 8),
+                                    color: Colors.grey.shade400,
+                                    height: 5,
+                                    width: 5
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                              child: Column(
+                                children: [
+                                  TextFormField(
+                                    controller: _textEditingController,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        void setDuration(int value) => tamu = value;
+                                        _textEditingController.value = nullableNum(value, _textEditingController, setDuration);
+                                      });
+                                    },
+                                    enableInteractiveSelection: false,
+                                    style: GoogleFonts.rubik(
+                                      letterSpacing: -0.25,
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.w500
+                                    ),
+                                    maxLength: 3,
+                                    keyboardType: TextInputType.number,
+                                    textAlign: TextAlign.end,
+                                    textAlignVertical: TextAlignVertical.top,
+                                    inputFormatters: <TextInputFormatter>[
+                                      FilteringTextInputFormatter.digitsOnly
+                                    ],
+                                    decoration: InputDecoration(
+                                      contentPadding: const EdgeInsets.fromLTRB(16, 12, 12, 12),
+                                      counterText: '',
+                                      prefix: Transform.translate(
+                                        offset: const Offset(0, -1),
+                                        child: IntrinsicHeight(
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Container(
+                                                padding: const EdgeInsets.fromLTRB(12, 4, 16 ,4),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.green.withOpacity(0.1),
+                                                  borderRadius: BorderRadius.circular(8)
+                                                ),
+                                                child: Row(
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  children: [
+                                                    const Icon(Icons.person, color: Colors.green, size: 22),
+                                                    const SizedBox(width: 8),
+                                                    Text('Tamu',
+                                                      style: GoogleFonts.rubik(
+                                                        decoration: TextDecoration.none,
+                                                        letterSpacing: -0.5,
+                                                        fontSize: 20,
+                                                        color: Colors.green,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      suffix: IntrinsicHeight(
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            const Text(' Orang '),
+                                            const SizedBox(width: 4),
+                                            const VerticalDivider(indent: 6, endIndent: 6),
+                                            IconButton(
+                                              onPressed: () {
+                                                if (tamu > 0) {
+                                                  setState(() {
+                                                    tamu -= 1;
+                                                    _textEditingController.text = tamu.toString();
+                                                    _textEditingController.selection = TextSelection.fromPosition(TextPosition(offset: _textEditingController.text.length));
+                                                  });
+                                                }
+                                              }, 
+                                              visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
+                                              style: const ButtonStyle(iconSize: MaterialStatePropertyAll(32)),
+                                              icon: const Icon(Icons.remove)
+                                            ),
+                                            IconButton(
+                                              onPressed: () {
+                                                setState(() {
+                                                  tamu += 1;
+                                                  _textEditingController.text = tamu.toString();
+                                                  _textEditingController.selection = TextSelection.fromPosition(TextPosition(offset: _textEditingController.text.length));
+                                                });
+                                              }, 
+                                              visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
+                                              style: const ButtonStyle(iconSize: MaterialStatePropertyAll(32)),
+                                              icon: const Icon(Icons.add)
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      suffixStyle: GoogleFonts.varelaRound(
+                                        color: Colors.grey.shade800,
+                                        letterSpacing: -0.5,
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.w500,
+                                        height: 1.75
+                                      ),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(color: Colors.grey.shade300, width: 2),
+                                        borderRadius: BorderRadius.circular(12)
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderSide: const BorderSide(color: Colors.green, width: 2),
+                                        borderRadius: BorderRadius.circular(12)
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  TextFormField(
+                                    controller: _textEditingCurrencyController,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _textEditingCurrencyController.value = nullableNum(value, _textEditingCurrencyController);
+                                        _textEditingCurrencyController.value = currencyFormat(_textEditingCurrencyController.text, _textEditingCurrencyController);
+                                      });
+                                    },
+                                    style: GoogleFonts.rubik(
+                                      letterSpacing: -0.25,
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.w500
+                                    ),
+                                    maxLength: 7,
+                                    keyboardType: TextInputType.number,
+                                    textAlign: TextAlign.end,
+                                    textAlignVertical: TextAlignVertical.top,
+                                    inputFormatters: <TextInputFormatter>[
+                                      FilteringTextInputFormatter.digitsOnly
+                                    ],
+                                    decoration: InputDecoration(
+                                      contentPadding: const EdgeInsets.fromLTRB(22, 12, 22, 12),
+                                      counterText: '',
+                                      prefixText: '$_currency. ',
+                                      suffix: const Text(' / orang'),
+                                      suffixStyle: GoogleFonts.varelaRound(
+                                        color: Colors.grey.shade600,
+                                        letterSpacing: -0.5,
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.w500,
+                                        height: 1.75
+                                      ),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(color: Colors.grey.shade300, width: 2),
+                                        borderRadius: BorderRadius.circular(12)
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderSide: const BorderSide(color: Colors.green, width: 2),
+                                        borderRadius: BorderRadius.circular(12)
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 24),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: ElevatedButton(
+                                      onPressed: () async {
+                                        setState(() => _first = false);
+                                        WidgetsBinding.instance.addPostFrameCallback((_) => Navigator.of(context).pop());
+                                      }, 
+                                      style: ButtonStyle(
+                                        elevation: const MaterialStatePropertyAll(2),
+                                        shadowColor: const MaterialStatePropertyAll(Colors.black26),
+                                        padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 12, horizontal: 24)),
+                                        surfaceTintColor: const MaterialStatePropertyAll(Colors.transparent),
+                                        overlayColor: const MaterialStatePropertyAll(Colors.black12),
+                                        backgroundColor: const MaterialStatePropertyAll(Colors.white),
+                                        foregroundColor: const MaterialStatePropertyAll(Colors.grey),
+                                        side: MaterialStatePropertyAll(BorderSide(color: Colors.grey.shade400, width: 2)),
+                                        textStyle: MaterialStatePropertyAll(
+                                          GoogleFonts.varelaRound(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w600
+                                          )
+                                        ),
+                                        shape: MaterialStatePropertyAll(
+                                          RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(12)
+                                          )
+                                        )
+                                      ),
+                                      child: const Text('Tutup')
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: OutlinedButton(
+                                      onPressed: () {
+                                        widget.changeLocation(widget.location, int.parse(_textEditingCurrencyController.text.replaceAll('.', '')), 'price');
+                                        widget.changeGuest(int.parse(_textEditingController.text));
+
+                                        setState(() => _first = false);
+                                        WidgetsBinding.instance.addPostFrameCallback((_) => Navigator.of(context).pop());
+                                      },
+                                      style: ButtonStyle(
+                                        elevation: const MaterialStatePropertyAll(2),
+                                        shadowColor: const MaterialStatePropertyAll(Colors.black45),
+                                        padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 12, horizontal: 24)),
+                                        surfaceTintColor: const MaterialStatePropertyAll(Colors.transparent),
+                                        foregroundColor: const MaterialStatePropertyAll(Colors.green),
+                                        backgroundColor: MaterialStatePropertyAll(Colors.grey.shade50),
+                                        overlayColor: MaterialStatePropertyAll(Colors.green.withOpacity(0.25)),
+                                        side: const MaterialStatePropertyAll(BorderSide(color: Colors.green, width: 2)),
+                                        textStyle: MaterialStatePropertyAll(
+                                          GoogleFonts.varelaRound(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w600
+                                          )
+                                        ),
+                                        shape: MaterialStatePropertyAll(
+                                          RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(12)
+                                          )
+                                        )
+                                      ),
+                                      child: const Text('Pilih')
+                                    ),
+                                  )
+                                ]
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -1503,9 +1901,9 @@ class _ShowChangeItemState extends State<ShowChangeItem> {
             duration: const Duration(milliseconds: 300),
             child: Scaffold(
               backgroundColor: Colors.transparent,
-              body: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Center(
+              body: Center(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(16),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(12),
                     child: Container(
@@ -1765,6 +2163,7 @@ class _ShowChangeItemState extends State<ShowChangeItem> {
                                         surfaceTintColor: const MaterialStatePropertyAll(Colors.transparent),
                                         backgroundColor: const MaterialStatePropertyAll(Colors.white),
                                         foregroundColor: const MaterialStatePropertyAll(Colors.grey),
+                                        overlayColor: const MaterialStatePropertyAll(Colors.black12),
                                         side: MaterialStatePropertyAll(BorderSide(color: Colors.grey.shade400, width: 2)),
                                         textStyle: MaterialStatePropertyAll(
                                           GoogleFonts.varelaRound(
@@ -1828,8 +2227,8 @@ class _ShowChangeItemState extends State<ShowChangeItem> {
                         ),
                       )
                     ),
-                  )
-                ),
+                  ),
+                )
               ),
             ),
           ),

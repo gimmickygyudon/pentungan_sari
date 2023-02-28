@@ -51,7 +51,7 @@ TextEditingValue nullableNum(String value, TextEditingController textEditingCont
   }
 
   for (int i = 0; i < value.length; i++) {
-    if (string.substring(0, i) == '0') { 
+    if (string.substring(0, 1) == '0' && string.length > 1) { 
       string = string.substring(1, string.length);
       result = textEditingController.value.copyWith(
         text: string, selection: const TextSelection.collapsed(
