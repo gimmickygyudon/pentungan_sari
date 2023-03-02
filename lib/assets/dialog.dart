@@ -138,7 +138,7 @@ class _ShowDialogEventState extends State<ShowDialogEvent> {
   DateTime rawDate = DateTime.now();
 
   late TextEditingController _textTitleController, _textGuestController;
-  late FocusNode _textTitleFocusNode;
+  late FocusNode _textTitleFocusNode, _textDescriptionFocusNode;
   final GlobalKey<State<StatefulWidget>> _countButtonKey = GlobalKey<State<StatefulWidget>>();
   final GlobalKey<TooltipState> _validateTooltipKey = GlobalKey<TooltipState>();
 
@@ -229,8 +229,9 @@ class _ShowDialogEventState extends State<ShowDialogEvent> {
 
     _textGuestController = TextEditingController(text: '10');
     _textTitleController = TextEditingController();
+    _textDescriptionFocusNode = FocusNode();
     _textTitleFocusNode = FocusNode()..addListener(() {
-      if (_textTitleFocusNode.hasFocus == false) _textTitleController.text = _textTitleController.text.toTitle();
+      if (_textTitleFocusNode.hasFocus == false) _textTitleController.text = _textTitleController.text.trim().toTitle();
     });
     _pageController = PageController(initialPage: page);
 
@@ -365,86 +366,103 @@ class _ShowDialogEventState extends State<ShowDialogEvent> {
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
                               PhysicalModel(
-                                elevation: 3,
-                                color: Colors.grey.shade100,
-                                shadowColor: Colors.black54,
+                                elevation: 4,
+                                color: page == 1 ? Colors.lightGreen.shade50 : Colors.blue.shade50,
+                                shadowColor: page == 1 ? Colors.lightGreen.withOpacity(0.25) : Colors.blue.withOpacity(0.25),
                                 borderRadius: BorderRadius.circular(16),
-                                child: Padding(
-                                  padding: const EdgeInsets.fromLTRB(32, 26, 32, 0),
-                                  child: Column(
-                                    children: [
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        crossAxisAlignment: CrossAxisAlignment.end,
-                                        children: [
-                                          Row(
-                                            children: List.generate(3, (index) {
-                                              List<Color> color = [ Colors.lightGreen, Colors.lightBlue, Colors.orange ];
-                                              return Container(
-                                                margin: const EdgeInsets.only(right: 4),
-                                                height: 10,
-                                                width: 10,
-                                                decoration: BoxDecoration(
-                                                  color: color[index],
-                                                  shape: BoxShape.circle
-                                                )
-                                              );
-                                            }),
-                                          ),
-                                          Container(
-                                            height: 32,
-                                            width: 32,
-                                            margin: const EdgeInsets.only(bottom: 8),
-                                            child: IconButton(
-                                              padding: EdgeInsets.zero,
-                                              onPressed: () => Navigator.of(context).pop(), 
-                                              style: ButtonStyle(
-                                                backgroundColor: MaterialStatePropertyAll(Colors.grey.shade100)
-                                              ),
-                                              icon: const Icon(Icons.close)
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    image: DecorationImage(
+                                      opacity: 0.2,
+                                      fit: BoxFit.cover,
+                                      image: AssetImage('images/${locations[locations.indexWhere((element) => element['name'] == selectedLocation)]['image']}')
+                                    )
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.fromLTRB(32, 26, 32, 0),
+                                    child: Column(
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          crossAxisAlignment: CrossAxisAlignment.end,
+                                          children: [
+                                            Row(
+                                              children: List.generate(3, (index) {
+                                                List<Color> color = [ Colors.lightGreen, Colors.lightBlue, Colors.orange ];
+                                                return Container(
+                                                  margin: const EdgeInsets.only(right: 4),
+                                                  height: 10,
+                                                  width: 10,
+                                                  decoration: BoxDecoration(
+                                                    color: color[index],
+                                                    shape: BoxShape.circle
+                                                  )
+                                                );
+                                              }),
                                             ),
-                                          )
-                                        ],
-                                      ),
-                                      const SizedBox(height: 24),
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(page == 1 ? 'Harga Acara' : 'Tambah Acara', 
-                                            style: GoogleFonts.varelaRound(
-                                              fontSize: 22,
-                                              fontWeight: FontWeight.w600,
-                                              color: Colors.grey.shade800
-                                            ),
-                                          ),
-                                          AnimatedSwitcher(
-                                            duration: const Duration(milliseconds: 400),
-                                            child: page == 0 ? TextButton.icon(
-                                              onPressed: () {
-                                                setState(() {
-                                                  expandDescription 
-                                                    ? expandDescription = false 
-                                                    : expandDescription = true;
-                                                });
-                                              },
-                                              style: ButtonStyle(
-                                                padding: const MaterialStatePropertyAll(EdgeInsets.zero),
-                                                visualDensity: const VisualDensity(vertical: -4, horizontal: -4),
-                                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                                textStyle: MaterialStatePropertyAll(
-                                                  GoogleFonts.rubik(letterSpacing: -0.25, fontSize: 16)
+                                            Container(
+                                              height: 28,
+                                              width: 28,
+                                              margin: const EdgeInsets.only(bottom: 8),
+                                              child: IconButton(
+                                                padding: EdgeInsets.zero,
+                                                onPressed: () => Navigator.of(context).pop(), 
+                                                style: ButtonStyle(
+                                                  backgroundColor: MaterialStatePropertyAll(page == 1 ? Colors.lightGreen.shade200 : Colors.blue.shade200)
                                                 ),
-                                                iconSize: const MaterialStatePropertyAll(20),
-                                                foregroundColor: MaterialStatePropertyAll(Colors.blueGrey.shade700)
+                                                icon: const Icon(Icons.close)
                                               ),
-                                              icon: Icon(expandDescription ? Icons.remove : Icons.add, size: 16),
-                                              label: const Text('Keterangan')
-                                            ) : Icon(Icons.add_card, color: Colors.blueGrey.shade800),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 16),
-                                    ],
+                                            )
+                                          ],
+                                        ),
+                                        const SizedBox(height: 24),
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                Icon(page == 1 ? Icons.account_balance_wallet : Icons.control_point_duplicate_outlined, color: Colors.grey.shade800),
+                                                const SizedBox(width: 12),
+                                                Text(page == 1 ? 'Harga Acara' : 'Tambah Acara', 
+                                                  style: GoogleFonts.varelaRound(
+                                                    fontSize: 22,
+                                                    fontWeight: FontWeight.w600,
+                                                    letterSpacing: -0.25,
+                                                    color: Colors.grey.shade800
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            AnimatedSwitcher(
+                                              duration: const Duration(milliseconds: 400),
+                                              child: page == 0 ? TextButton.icon(
+                                                onPressed: () {
+                                                  setState(() {
+                                                    expandDescription 
+                                                      ? expandDescription = false 
+                                                      : expandDescription = true;
+                                                  });
+                                                  WidgetsBinding.instance.addPostFrameCallback((_) => _textDescriptionFocusNode.requestFocus());
+                                                },
+                                                style: ButtonStyle(
+                                                  padding: const MaterialStatePropertyAll(EdgeInsets.zero),
+                                                  visualDensity: const VisualDensity(vertical: -4, horizontal: -4),
+                                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                                  textStyle: MaterialStatePropertyAll(
+                                                    GoogleFonts.rubik(letterSpacing: -0.25, fontSize: 16)
+                                                  ),
+                                                  iconSize: const MaterialStatePropertyAll(16),
+                                                  foregroundColor: MaterialStatePropertyAll(expandDescription ? Colors.grey.shade800 : Colors.grey.shade700)
+                                                ),
+                                                icon: Icon(expandDescription ? Icons.event_note : Icons.event_note_outlined),
+                                                label: const Text('Notes')
+                                              ) : Icon(Icons.more_horiz, color: expandDescription ? Colors.grey.shade800 : Colors.grey.shade700),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 16),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
@@ -461,7 +479,7 @@ class _ShowDialogEventState extends State<ShowDialogEvent> {
                                         child: Column(
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
-                                            TextField(
+                                            TextFormField(
                                               focusNode: _textTitleFocusNode,
                                               controller: _textTitleController,
                                               onChanged: (value) {
@@ -821,7 +839,7 @@ class _ShowDialogEventState extends State<ShowDialogEvent> {
                                                               children: [
                                                                 Text(fromDate),
                                                                 const SizedBox(width: 2),
-                                                                const Icon(Icons.arrow_drop_down)
+                                                                oneday ? const SizedBox() : const Icon(Icons.arrow_drop_down)
                                                               ],
                                                             ),
                                                           ],
@@ -863,7 +881,7 @@ class _ShowDialogEventState extends State<ShowDialogEvent> {
                                                               children: [
                                                                 Text(toDate),
                                                                 const SizedBox(width: 2),
-                                                                const Icon(Icons.arrow_drop_down)
+                                                                oneday ? const SizedBox() : const Icon(Icons.arrow_drop_down)
                                                               ],
                                                             ),
                                                           ],
@@ -882,6 +900,7 @@ class _ShowDialogEventState extends State<ShowDialogEvent> {
                                             AnimatedSwitcher(
                                               duration: const Duration(milliseconds: 100),
                                               child: expandDescription ? TextField(
+                                                focusNode: _textDescriptionFocusNode,
                                                 style: GoogleFonts.rubik(
                                                   letterSpacing: -0.25,
                                                   fontSize: 24,
@@ -891,7 +910,20 @@ class _ShowDialogEventState extends State<ShowDialogEvent> {
                                                 maxLines: 3,
                                                 decoration: InputDecoration(
                                                   contentPadding: const EdgeInsets.fromLTRB(16, 12, 0, 8),
-                                                  labelText: 'Keterangan',
+                                                  label: Row(
+                                                    mainAxisSize: MainAxisSize.min,
+                                                    children: [
+                                                      Icon(Icons.event_note_outlined, color: Colors.blueGrey.shade500, size: 24),
+                                                      const SizedBox(width: 8),
+                                                      Text('Keterangan', 
+                                                        style: GoogleFonts.rubik(
+                                                          height: -0.1,
+                                                          color: Colors.blueGrey,
+                                                          fontSize: 24,
+                                                        ),
+                                                      )
+                                                    ]
+                                                  ),
                                                   floatingLabelBehavior: FloatingLabelBehavior.always,
                                                   enabledBorder: OutlineInputBorder(
                                                     borderRadius: BorderRadius.circular(12),
@@ -952,7 +984,7 @@ class _ShowDialogEventState extends State<ShowDialogEvent> {
                                       style: ButtonStyle(
                                         elevation: const MaterialStatePropertyAll(2),
                                         shadowColor: const MaterialStatePropertyAll(Colors.black45),
-                                        padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 12, horizontal: 24)),
+                                        padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 16, horizontal: 24)),
                                         surfaceTintColor: const MaterialStatePropertyAll(Colors.transparent),
                                         backgroundColor: const MaterialStatePropertyAll(Colors.white),
                                         foregroundColor: const MaterialStatePropertyAll(Colors.grey),
@@ -1049,7 +1081,7 @@ class _ShowDialogEventState extends State<ShowDialogEvent> {
                                               style: ButtonStyle(
                                                 elevation: MaterialStatePropertyAll(validate != 2 ? 0 : 2),
                                                 shadowColor: const MaterialStatePropertyAll(Colors.black45),
-                                                padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 12, horizontal: 24)),
+                                                padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 16, horizontal: 24)),
                                                 backgroundColor: MaterialStateProperty.resolveWith((states) {
                                                   return validate != 2 
                                                     ? Colors.grey.shade300 
@@ -1158,7 +1190,7 @@ class _ResultEventState extends State<ResultEvent> {
           minVerticalPadding: 14,
           title: Padding(
             padding: const EdgeInsets.only(bottom: 8),
-            child: Text(widget.title),
+            child: Text(widget.title.trim()),
           ),
           titleTextStyle: GoogleFonts.varelaRound(
             color: Colors.grey.shade800,
@@ -1744,7 +1776,7 @@ class _ShowLocationItemState extends State<ShowLocationItem> {
                                       style: ButtonStyle(
                                         elevation: const MaterialStatePropertyAll(2),
                                         shadowColor: const MaterialStatePropertyAll(Colors.black26),
-                                        padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 12, horizontal: 24)),
+                                        padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 16, horizontal: 24)),
                                         surfaceTintColor: const MaterialStatePropertyAll(Colors.transparent),
                                         overlayColor: const MaterialStatePropertyAll(Colors.black12),
                                         backgroundColor: const MaterialStatePropertyAll(Colors.white),
@@ -1778,7 +1810,7 @@ class _ShowLocationItemState extends State<ShowLocationItem> {
                                       style: ButtonStyle(
                                         elevation: const MaterialStatePropertyAll(2),
                                         shadowColor: const MaterialStatePropertyAll(Colors.black45),
-                                        padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 12, horizontal: 24)),
+                                        padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 16, horizontal: 24)),
                                         surfaceTintColor: const MaterialStatePropertyAll(Colors.transparent),
                                         foregroundColor: const MaterialStatePropertyAll(Colors.green),
                                         backgroundColor: MaterialStatePropertyAll(Colors.grey.shade50),
@@ -2159,7 +2191,7 @@ class _ShowChangeItemState extends State<ShowChangeItem> {
                                       style: ButtonStyle(
                                         elevation: const MaterialStatePropertyAll(2),
                                         shadowColor: const MaterialStatePropertyAll(Colors.black26),
-                                        padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 12, horizontal: 24)),
+                                        padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 16, horizontal: 24)),
                                         surfaceTintColor: const MaterialStatePropertyAll(Colors.transparent),
                                         backgroundColor: const MaterialStatePropertyAll(Colors.white),
                                         foregroundColor: const MaterialStatePropertyAll(Colors.grey),
@@ -2199,7 +2231,7 @@ class _ShowChangeItemState extends State<ShowChangeItem> {
                                       style: ButtonStyle(
                                         elevation: const MaterialStatePropertyAll(2),
                                         shadowColor: const MaterialStatePropertyAll(Colors.black45),
-                                        padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 12, horizontal: 24)),
+                                        padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 16, horizontal: 24)),
                                         surfaceTintColor: const MaterialStatePropertyAll(Colors.transparent),
                                         foregroundColor: MaterialStatePropertyAll(widget.color),
                                         backgroundColor: MaterialStatePropertyAll(Colors.grey.shade50),
@@ -2369,10 +2401,10 @@ Future<void> showPickTime(BuildContext context, Function callback, TimeOfDay tim
                     surface: Colors.white,
                     surfaceTint: Colors.white,
                     surfaceVariant: Colors.orange.shade50,
-                    primary: Colors.orange,
+                    primary: Colors.lightGreen,
                     primaryContainer: Colors.orange.shade50,
                     onPrimary: Colors.white,
-                    onPrimaryContainer: Colors.orange.shade900,
+                    onPrimaryContainer: Colors.lightGreen.shade900,
                     onSurface: Colors.grey.shade700,
                   ),
                   textTheme: TextTheme(

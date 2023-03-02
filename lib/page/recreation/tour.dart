@@ -14,7 +14,7 @@ class Tour extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    int duration = 300;
+    int duration = 400;
     return Container(
       color: Colors.grey.shade50,
       child: SingleChildScrollView(
