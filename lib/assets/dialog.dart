@@ -253,7 +253,10 @@ class _ShowDialogEventState extends State<ShowDialogEvent> {
     if (_textTitleController.text.trim().isNotEmpty) {
       count++; 
     }
-    if (_textGuestController.text == '0') _textGuestController.text = '';
+
+    if (_textGuestController.text == '0') { 
+      _textGuestController.value = _textGuestController.value.copyWith(text: '', selection: const TextSelection.collapsed(offset: 0));
+    }
     if (_textGuestController.text.trim().isNotEmpty || _textGuestController.text != '0') {
       count++; 
       for (int i = 0; i < _textGuestController.text.length; i++) {
@@ -339,15 +342,15 @@ class _ShowDialogEventState extends State<ShowDialogEvent> {
                 child: Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.only(
-                      topLeft: const Radius.circular(16),
-                      topRight: const Radius.circular(16),
+                      topLeft: const Radius.circular(20),
+                      topRight: const Radius.circular(20),
                       bottomLeft: Radius.circular(
                         MediaQuery.of(context).viewInsets.bottom == 0 || expandDescription == false
-                        ? 16 : 0
+                        ? 20 : 0
                       ),
                       bottomRight: Radius.circular(
                         MediaQuery.of(context).viewInsets.bottom == 0 || expandDescription == false
-                        ? 16 : 0
+                        ? 20 : 0
                       )
                     ),
                     color: Colors.grey.shade200,
@@ -358,7 +361,7 @@ class _ShowDialogEventState extends State<ShowDialogEvent> {
                       Flexible(
                         child: Material(
                           color: Colors.grey.shade50,
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: BorderRadius.circular(20),
                           elevation: 2,
                           shadowColor: Colors.black45,
                           child: Column(
@@ -367,13 +370,22 @@ class _ShowDialogEventState extends State<ShowDialogEvent> {
                             children: [
                               PhysicalModel(
                                 elevation: 4,
-                                color: page == 1 ? Colors.lightGreen.shade50 : Colors.blue.shade50,
-                                shadowColor: page == 1 ? Colors.lightGreen.withOpacity(0.25) : Colors.blue.withOpacity(0.25),
-                                borderRadius: BorderRadius.circular(16),
+                                color: Colors.transparent,
+                                shadowColor: page == 1 ? Colors.lightGreen.withOpacity(0.5) : Colors.blue.withOpacity(0.5),
+                                borderRadius: BorderRadius.circular(20),
                                 child: Container(
                                   decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                      colors: page == 1 
+                                        ? [ Colors.lightGreen.shade100, Colors.lightGreen.shade700 ] 
+                                        : [ Colors.blue.shade100, Colors.blue.shade700 ],
+                                      stops: const [ 0.2, 1.0 ]
+                                    ),
+                                    borderRadius: BorderRadius.circular(20),
                                     image: DecorationImage(
-                                      opacity: 0.2,
+                                      opacity: 0.05,
                                       fit: BoxFit.cover,
                                       image: AssetImage('images/${locations[locations.indexWhere((element) => element['name'] == selectedLocation)]['image']}')
                                     )
@@ -386,20 +398,6 @@ class _ShowDialogEventState extends State<ShowDialogEvent> {
                                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                           crossAxisAlignment: CrossAxisAlignment.end,
                                           children: [
-                                            Row(
-                                              children: List.generate(3, (index) {
-                                                List<Color> color = [ Colors.lightGreen, Colors.lightBlue, Colors.orange ];
-                                                return Container(
-                                                  margin: const EdgeInsets.only(right: 4),
-                                                  height: 10,
-                                                  width: 10,
-                                                  decoration: BoxDecoration(
-                                                    color: color[index],
-                                                    shape: BoxShape.circle
-                                                  )
-                                                );
-                                              }),
-                                            ),
                                             Container(
                                               height: 28,
                                               width: 28,
@@ -407,11 +405,27 @@ class _ShowDialogEventState extends State<ShowDialogEvent> {
                                               child: IconButton(
                                                 padding: EdgeInsets.zero,
                                                 onPressed: () => Navigator.of(context).pop(), 
-                                                style: ButtonStyle(
-                                                  backgroundColor: MaterialStatePropertyAll(page == 1 ? Colors.lightGreen.shade200 : Colors.blue.shade200)
+                                                style: const ButtonStyle(
+                                                  foregroundColor: MaterialStatePropertyAll(Colors.white)
                                                 ),
                                                 icon: const Icon(Icons.close)
                                               ),
+                                            ),
+                                            Row(
+                                              children: <Widget>[
+                                                CircleAvatar(
+                                                  backgroundColor: Colors.white,
+                                                  child: Transform.scale(
+                                                    scale: 0.75,
+                                                    child: Image.asset('images/bumdes.png', filterQuality: FilterQuality.none, scale: 0.05)
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 16),
+                                                CircleAvatar(
+                                                  backgroundColor: Colors.white,
+                                                  child: Image.asset('images/toyomarto.png', filterQuality: FilterQuality.none, scale: 0.05),
+                                                ),
+                                              ]
                                             )
                                           ],
                                         ),
@@ -419,19 +433,24 @@ class _ShowDialogEventState extends State<ShowDialogEvent> {
                                         Row(
                                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                           children: [
-                                            Row(
-                                              children: [
-                                                Icon(page == 1 ? Icons.account_balance_wallet : Icons.control_point_duplicate_outlined, color: Colors.grey.shade800),
-                                                const SizedBox(width: 12),
-                                                Text(page == 1 ? 'Harga Acara' : 'Tambah Acara', 
-                                                  style: GoogleFonts.varelaRound(
-                                                    fontSize: 22,
-                                                    fontWeight: FontWeight.w600,
-                                                    letterSpacing: -0.25,
-                                                    color: Colors.grey.shade800
+                                            GestureDetector(
+                                              onTap: () => page == 0 ? Navigator.of(context).pop() : null,
+                                              child: Row(
+                                                children: [
+                                                  Icon(page == 1 
+                                                    ? Icons.receipt_long : Icons.control_point_duplicate_outlined, color: Colors.grey.shade50),
+                                                  const SizedBox(width: 12),
+                                                  Text(page == 1 ? 'Harga Acara' : 'Tambah Acara', 
+                                                    style: GoogleFonts.rubik(
+                                                      fontSize: 22,
+                                                      fontWeight: FontWeight.w500,
+                                                      letterSpacing: -0.5,
+                                                      wordSpacing: 4,
+                                                      color: Colors.grey.shade50
+                                                    ),
                                                   ),
-                                                ),
-                                              ],
+                                                ],
+                                              ),
                                             ),
                                             AnimatedSwitcher(
                                               duration: const Duration(milliseconds: 400),
@@ -452,11 +471,11 @@ class _ShowDialogEventState extends State<ShowDialogEvent> {
                                                     GoogleFonts.rubik(letterSpacing: -0.25, fontSize: 16)
                                                   ),
                                                   iconSize: const MaterialStatePropertyAll(16),
-                                                  foregroundColor: MaterialStatePropertyAll(expandDescription ? Colors.grey.shade800 : Colors.grey.shade700)
+                                                  foregroundColor: MaterialStatePropertyAll(expandDescription ? Colors.grey.shade50 : Colors.grey.shade200)
                                                 ),
                                                 icon: Icon(expandDescription ? Icons.event_note : Icons.event_note_outlined),
                                                 label: const Text('Notes')
-                                              ) : Icon(Icons.more_horiz, color: expandDescription ? Colors.grey.shade800 : Colors.grey.shade700),
+                                              ) : Icon(Icons.more_horiz, color: expandDescription ? Colors.grey.shade50 : Colors.grey.shade200),
                                             ),
                                           ],
                                         ),
@@ -1192,10 +1211,11 @@ class _ResultEventState extends State<ResultEvent> {
             padding: const EdgeInsets.only(bottom: 8),
             child: Text(widget.title.trim()),
           ),
-          titleTextStyle: GoogleFonts.varelaRound(
+          titleTextStyle: GoogleFonts.rubik(
             color: Colors.grey.shade800,
+            letterSpacing: -0.25,
             fontSize: 24,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w500,
           ),
           subtitle: Text(widget.date, 
             style: GoogleFonts.rubik(color: Colors.grey.shade600)
@@ -1828,7 +1848,7 @@ class _ShowLocationItemState extends State<ShowLocationItem> {
                                           )
                                         )
                                       ),
-                                      child: const Text('Pilih')
+                                      child: const Text('Ubah')
                                     ),
                                   )
                                 ]
@@ -2122,7 +2142,7 @@ class _ShowChangeItemState extends State<ShowChangeItem> {
                                         height: 1.75
                                       ),
                                       enabledBorder: OutlineInputBorder(
-                                        borderSide: BorderSide(color: Colors.grey.shade300, width: 2),
+                                        borderSide: BorderSide(color: widget.color.withOpacity(0.25), width: 2),
                                         borderRadius: BorderRadius.circular(12)
                                       ),
                                       focusedBorder: OutlineInputBorder(
@@ -2400,9 +2420,9 @@ Future<void> showPickTime(BuildContext context, Function callback, TimeOfDay tim
                   colorScheme: ColorScheme.light(
                     surface: Colors.white,
                     surfaceTint: Colors.white,
-                    surfaceVariant: Colors.orange.shade50,
+                    surfaceVariant: Colors.lightGreen.shade50,
                     primary: Colors.lightGreen,
-                    primaryContainer: Colors.orange.shade50,
+                    primaryContainer: Colors.lightGreen.shade50,
                     onPrimary: Colors.white,
                     onPrimaryContainer: Colors.lightGreen.shade900,
                     onSurface: Colors.grey.shade700,

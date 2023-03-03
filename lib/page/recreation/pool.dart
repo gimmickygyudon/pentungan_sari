@@ -278,48 +278,54 @@ class _PoolPageState extends State<PoolPage> {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 400), 
-                      transitionBuilder: (Widget child, Animation<double> animation) {
-                        return FadeTransition(opacity: animation, child: child);
-                      },
-                      child: pageScrolled 
-                      ? Align(
-                        alignment: Alignment.bottomCenter,
-                        child: Padding(
-                          padding: const EdgeInsets.only(bottom: 0),
-                          child: SizedBox(
-                            height: 400,
-                            width: double.infinity,
-                            child: Container(
-                              clipBehavior: Clip.antiAliasWithSaveLayer,
-                              foregroundDecoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [ 
-                                    Colors.grey.shade50,
-                                    Colors.transparent
-                                  ],
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                  stops: const [ 0.2, 1.0 ]
+                    AnimatedSlide(
+                      offset: Offset(0, pageScrolled ? 0 : 0.25),
+                      curve: Curves.easeOutCubic,
+                      duration: const Duration(milliseconds: 1400),
+                      child: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 1000), 
+                        transitionBuilder: (Widget child, Animation<double> animation) {
+                          return FadeTransition(opacity: animation, child: child);
+                        },
+                        child: pageScrolled 
+                        ? Align(
+                          alignment: FractionalOffset.bottomCenter,
+                          child: ClipRect(
+                            child: Transform.translate(
+                              offset: const Offset(0, -10),
+                              child: SizedBox(
+                                height: 400,
+                                width: double.infinity,
+                                child: Container(
+                                  clipBehavior: Clip.antiAliasWithSaveLayer,
+                                  foregroundDecoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: [ 
+                                        Colors.grey.shade50,
+                                        Colors.transparent
+                                      ],
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                      stops: const [ 0.2, 1.0 ]
+                                    ),
+                                  ),
+                                  decoration: BoxDecoration(
+                                    image: DecorationImage(
+                                      fit: BoxFit.cover,
+                                      image: AssetImage(
+                                        'images/pool_${page + 1}.jpg',
+                                      )
+                                    )
+                                  ),
                                 ),
-                              ),
-                              decoration: BoxDecoration(
-                                image: DecorationImage(
-                                  fit: BoxFit.cover,
-                                  image: AssetImage(
-                                    'images/pool_${page + 1}.jpg',
-                                  )
-                                )
                               ),
                             ),
                           ),
-                        ),
-                      )
-                      : null,
+                        )
+                        : null,
+                      ),
                     ),
                     Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Expanded(
@@ -433,7 +439,7 @@ class _PoolPageState extends State<PoolPage> {
                                               ),
                                             ],
                                           ),
-                                          const SizedBox(height: 12),
+                                          const SizedBox(height: 18),
                                           Text('Tentang Kolam Renang',
                                             style: GoogleFonts.rubik(
                                               color: Colors.grey.shade600,
@@ -445,34 +451,55 @@ class _PoolPageState extends State<PoolPage> {
                                           const SizedBox(height: 12),
                                           Text('Kolam pentungan sari merupakan lahan yang dibuat untuk menampung air dalam jumlah tertentu sehingga dapat digunakan untuk wisata berenang.', 
                                             textAlign: TextAlign.start,
-                                            style: GoogleFonts.roboto(
+                                            style: GoogleFonts.signikaNegative(
                                               color: Colors.grey.shade500,
-                                              fontSize: 16,
-                                              letterSpacing: 0.5,
+                                              fontSize: 18,
                                               height: 1.5
                                             ),
                                           ),
                                           const SizedBox(height: 12),
                                           Text('Sejarah munculnya Pentungan Sari, adalah ketika para warga mengurutkan jumlah dari sumber air tersebut, ditemukan sumber dengan air yang sangat bersih. Warga sekitar menganggap sumber dengan air yang jernih tersebut sebagai sari atau inti dari air yang mengalir ke Pentungan Berek.', 
                                             textAlign: TextAlign.start,
-                                            style: GoogleFonts.roboto(
+                                            style: GoogleFonts.signikaNegative(
                                               color: Colors.grey.shade500,
-                                              fontSize: 16,
-                                              letterSpacing: 0.5,
+                                              fontSize: 18,
                                               height: 1.5
                                             ),
                                           ),
-                                          const SizedBox(height: 32),
-                                          Text('Peraturan',
-                                            style: GoogleFonts.rubik(
-                                              color: Colors.grey.shade600,
-                                              wordSpacing: -0.25,
-                                              fontSize: 16,
-                                              height: 1.5
-                                            ),
+                                          const SizedBox(height: 40),
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text('Peraturan',
+                                                style: GoogleFonts.rubik(
+                                                  color: Colors.grey.shade600,
+                                                  wordSpacing: -0.25,
+                                                  fontSize: 16,
+                                                  height: 1.5
+                                                ),
+                                              ),
+                                              Flexible(
+                                                child: Row(
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  mainAxisAlignment: MainAxisAlignment.end,
+                                                  children: [
+                                                    Text('Dibawah Pengawasan Orang Tua / Wali',
+                                                      style: GoogleFonts.rubik(
+                                                        color: Colors.grey.shade400,
+                                                        fontWeight: FontWeight.w400,
+                                                        height: 1.5,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(width: 6),
+                                                    Icon(Icons.info_outlined, color: Colors.grey.shade400, size: 16),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                           const SizedBox(height: 12),
                                           Column(
+                                            crossAxisAlignment: CrossAxisAlignment.end,
                                             children: [
                                               Container(
                                                 padding: const EdgeInsets.fromLTRB(14, 12, 22, 12),
@@ -581,38 +608,32 @@ class _PoolPageState extends State<PoolPage> {
                                                   ],
                                                 ),
                                               ),
-                                              const SizedBox(height: 8),
-                                              Row(
-                                                mainAxisAlignment: MainAxisAlignment.end,
-                                                children: [
-                                                  Text('Dibawah Pengawasan Orang Tua / Wali',
-                                                    style: GoogleFonts.roboto(
-                                                      color: Colors.grey,
-                                                      fontWeight: FontWeight.w500,
-                                                      height: 1.5
-                                                    ),
-                                                  ),
-                                                  const SizedBox(width: 4),
-                                                  const Icon(Icons.info, color: Colors.grey, size: 16),
-                                                  const SizedBox(width: 4),
-                                                ],
-                                              ),
-                                              const SizedBox(height: 8),
                                             ],
                                           ),
                                         ],
                                       ),
                                     ),
-                                    const SizedBox(height: 24),
+                                    const SizedBox(height: 40),
                                     Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal :28),
-                                      child: Text('Fasilitas / Menyediakan',
-                                        style: GoogleFonts.rubik(
-                                          color: Colors.grey.shade600,
-                                          wordSpacing: -0.25,
-                                          fontSize: 16,
-                                          height: 1.5
-                                        ),
+                                      padding: const EdgeInsets.symmetric(horizontal: 28),
+                                      child: Row(
+                                        children: [
+                                          Container(
+                                            padding: const EdgeInsets.only(left: 6, right: 6),
+                                            decoration: BoxDecoration(
+                                              color: Colors.grey.shade50,
+                                              borderRadius: BorderRadius.circular(4),
+                                            ),
+                                            child: Text('Fasilitas / Menyediakan',
+                                              style: GoogleFonts.rubik(
+                                                color: Colors.grey.shade600,
+                                                wordSpacing: -0.25,
+                                                fontSize: 16,
+                                                height: 1.5
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
                                     const SizedBox(height: 6),

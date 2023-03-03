@@ -24,6 +24,12 @@ class _PageState extends State<ContextPage> {
     super.initState();
   }
 
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
   List<String> navigationItem = ['Jelajahi', 'Rekreasi', 'Tiket', 'Kontak'];
   List<IconData> navigationItemIcon = [
     Icons.explore, 

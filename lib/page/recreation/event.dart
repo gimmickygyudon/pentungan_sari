@@ -1,13 +1,21 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:pentungan_sari/assets/dialog.dart';
+
+import '../../function/builder.dart';
 
 class Event extends StatefulWidget {
   const Event({
-    super.key, required this.now
+    super.key, 
+    required this.now, 
+    required this.viewHistory
   });
 
   final DateTime now;
+  final List<String> viewHistory;
 
   @override
   State<Event> createState() => _EventState();
@@ -32,7 +40,8 @@ class _EventState extends State<Event> {
   late List<Map<String, dynamic>> events, dummyevents;
   late DateTime startOfWeek, endOfWeek;
 
-  String view = 'Minggu';
+  String view = 'Minggu', view_ = 'Minggu';
+  late List<bool> animates;
   late bool animate;
 
   @override
@@ -40,7 +49,7 @@ class _EventState extends State<Event> {
     dummyevents = [
       {
         'date': (widget.now.day + 1).toString(),
-        'day': DateFormat('EEEE', 'id').format(DateTime(widget.now.day)),
+        'day': DateFormat('EEEE', 'id').format(DateTime(widget.now.day + 2)),
         'name': 'Rapat Posyandu',
         'time': '07.30 - 11.30',
         'addons': [ Icons.speaker, Icons.foundation ],
@@ -81,158 +90,201 @@ class _EventState extends State<Event> {
       i++;
     }
 
+    animates = [ false, false, false ];
     animate = false;
 
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => setState(() => animate = true));
+    WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {
+      animate = true;
+      animates[1] = true;
+    }));
   }
 
   @override
   void dispose() {
-    animate = false;
+    animates.setAll(0, List.filled(3, false));
     super.dispose();
+  }
+
+  void viewAnimate(String value, [bool popScope = false]) {
+    if (value != view) {
+      view_ = value;
+      if (popScope == false) widget.viewHistory.add(view);
+
+      setState(() => animates.setAll(0, List.filled(3, false)));
+      WidgetsBinding.instance.addPostFrameCallback((_) =>
+        Timer(const Duration(milliseconds: 200), () => setState(() => 
+          view = value
+        ))
+      );
+      WidgetsBinding.instance.addPostFrameCallback((_) => 
+        Timer(const Duration(milliseconds: 300), () => 
+        setState(() => 
+          animates[viewIndex(value)] = true
+        ))
+      );
+    }
+  }
+
+  int viewIndex(String view) {
+    switch (view) {
+      case 'Hari':
+        return 0;
+      case 'Minggu':
+        return 1;
+      case 'Bulan':
+        return 2;
+      default:
+        return 1;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Theme(
-      data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-      child: Scaffold(
-        resizeToAvoidBottomInset: false,
-        backgroundColor: Colors.grey.shade200,
-        body: Column(
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            AnimatedSlide(
-              offset: Offset(0, animate ? 0 : -2),
+    return WillPopScope(
+      onWillPop: () async {
+        if (widget.viewHistory.isNotEmpty) {
+          viewAnimate(widget.viewHistory.last, true);
+          widget.viewHistory.removeLast();
+          return false;
+        } else {
+          return true;
+        }
+      },
+      child: Theme(
+        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        child: Builder(
+          builder: (BuildContext context) {
+            return Container(
+              color: Colors.grey.shade100,
+              child: AnimatedSlide(
+              offset: Offset(0, animate ? 0 : -1),
               curve: Curves.easeOutCubic,
-              duration: const Duration(milliseconds: 400),
-              child: Card(
-                elevation: 4,
-                shadowColor: Colors.black38,
-                surfaceTintColor: Colors.transparent,
-                margin: EdgeInsets.zero,
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(24),
-                    bottomRight: Radius.circular(24)
-                  )
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 28),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          DropdownButton(
-                            value: view,
-                            onChanged: (value) {
-                              setState(() {
-                                view = value as String;
-                              });
-                            },
-                            underline: const SizedBox(),
-                            isDense: true,
-                            style: GoogleFonts.varelaRound(
-                              color: Colors.grey.shade600,
-                              fontSize: 20,
-                              letterSpacing: 0.5,
-                              fontWeight: FontWeight.w600
-                            ),
-                            icon: Padding(
-                              padding: const EdgeInsets.only(left: 8),
-                              child: Icon(Icons.arrow_drop_down, color: Colors.grey.shade600),
-                            ),
-                            iconSize: 32,
-                            borderRadius: BorderRadius.circular(12),
-                            items: [
-                              DropdownMenuItem(
-                                value: 'Hari',
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.browse_gallery_outlined, size: 22, color: Colors.grey.shade700),
-                                    const SizedBox(width: 12),
-                                    const Text('Hari'),
-                                  ],
-                                )
-                              ),
-                              DropdownMenuItem(
-                                value: 'Minggu',
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.filter_list, size: 22, color: Colors.grey.shade700),
-                                    const SizedBox(width: 12),
-                                    const Text('Minggu'),
-                                  ],
-                                )
-                              ),
-                              DropdownMenuItem(
-                                value: 'Bulan',
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.calendar_view_month, size: 22, color: Colors.grey.shade700),
-                                    const SizedBox(width: 12),
-                                    const Text('Bulan'),
-                                  ],
-                                )
-                              )
-                            ]
-                          ),
-                        ],
+              duration: const Duration(milliseconds: 500),
+                child: CustomScrollView(
+                  shrinkWrap: true,
+                  slivers: <Widget>[
+                    SliverPinnedOverlapInjector(
+                      handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context)
+                    ),
+                    SliverAppBar(
+                      pinned: true,
+                      forceElevated: true,
+                      toolbarHeight: 20,
+                      elevation: 4,
+                      shadowColor: Colors.black38,
+                      surfaceTintColor: Colors.transparent,
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(24),
+                          bottomRight: Radius.circular(24)
+                        )
                       ),
-                      Row(
-                        children: [
-                          const SizedBox(width: 16),
-                          PopupMenuButton(
-                            itemBuilder: (context) => const [],
-                            child: Icon(Icons.more_vert, color: Colors.grey.shade700)
-                          )
-                        ],
-                      )
-                    ],
-                  ),
+                      flexibleSpace: FlexibleSpaceBar(
+                        expandedTitleScale: 1,
+                        title: Padding(
+                          padding: const EdgeInsets.fromLTRB(22, 12, 16, 10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              DropdownButton(
+                                value: view_,
+                                onChanged: (value) {
+                                  viewAnimate(value as String);
+                                },
+                                underline: const SizedBox(),
+                                isDense: true,
+                                style: GoogleFonts.varelaRound(
+                                  color: Colors.grey.shade600,
+                                  fontSize: 20,
+                                  letterSpacing: 0.5,
+                                  fontWeight: FontWeight.w600
+                                ),
+                                icon: Padding(
+                                  padding: const EdgeInsets.only(left: 8),
+                                  child: Icon(Icons.arrow_drop_down, color: Colors.grey.shade600),
+                                ),
+                                iconSize: 32,
+                                borderRadius: BorderRadius.circular(12),
+                                items: [
+                                  DropdownMenuItem(
+                                    value: 'Hari',
+                                    child: Row(
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.only(bottom: 2),
+                                          child: Icon(Icons.sunny, size: 24, color: Colors.yellow.shade700),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        const Text('Hari'),
+                                      ],
+                                    )
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'Minggu',
+                                    child: Row(
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.only(bottom: 2),
+                                          child: Icon(Icons.filter_list, size: 24, color: Colors.grey.shade700),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        const Text('Minggu'),
+                                      ],
+                                    )
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'Bulan',
+                                    child: Row(
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.only(bottom: 2),
+                                          child: Icon(Icons.calendar_view_month, size: 24, color: Colors.grey.shade700),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        const Text('Bulan'),
+                                      ],
+                                    )
+                                  )
+                                ]
+                              ),
+                              IconButton(
+                                onPressed: (){}, 
+                                icon: const Icon(Icons.search)
+                              ),
+                            ],
+                          ),
+                        ),
+                        titlePadding: EdgeInsets.zero, 
+                      ),
+                    ),
+                    SliverPadding(
+                      padding: (() {
+                        switch (view) {
+                          case 'Hari':
+                            return const EdgeInsets.symmetric(horizontal: 22, vertical: 24);
+                          case 'Bulan':
+                            return const EdgeInsets.only(left: 18, right: 28, top: 24, bottom: 82);
+                          default:
+                            return const EdgeInsets.only(left: 18, right: 28, top: 24, bottom: 82);
+                        }
+                      }()),
+                      sliver: (() {
+                        switch (view) {
+                          case 'Hari':
+                            return EventThisDay(events: dummyevents, animate: animates[0]);
+                          case 'Bulan':
+                            return EventThisWeek(events: events, dummyevents: dummyevents, now: widget.now, animate: animates[1], viewAnimate: viewAnimate);
+                          default:
+                            return EventThisWeek(events: events, dummyevents: dummyevents, now: widget.now, animate: animates[1], viewAnimate: viewAnimate);
+                        }
+                      }()) 
+                    ),
+                  ]
                 ),
               ),
-            ),
-            const SizedBox(height: 32),
-            Flexible(
-              child: AnimatedSwitcher(
-                switchInCurve: Curves.easeInOutCubic,
-                switchOutCurve: Curves.easeInOutCubic,
-                duration: const Duration(milliseconds: 400),
-                reverseDuration: const Duration(milliseconds: 400),
-                transitionBuilder: (Widget child, Animation<double> animation) {
-                  return ScaleTransition(
-                    scale: animation,
-                    child: FadeTransition(opacity: animation, child: child)
-                  );
-                },
-                child: (() {
-                  switch (view) {
-                    case 'Hari':
-                    return EventThisDay(
-                      events: events
-                    );
-                    case 'Minggu':
-                    return EventThisWeek(
-                      events: events, 
-                      dummyevents: dummyevents, 
-                      now: widget.now, 
-                      animate: animate
-                    );
-                    default:
-                    return EventThisWeek(
-                      events: events, 
-                      dummyevents: dummyevents, 
-                      now: widget.now, 
-                      animate: animate
-                    );
-                  }
-                }()) 
-              )
-            ),
-          ]
+            );
+          }
         ),
       ),
     );
@@ -240,213 +292,330 @@ class _EventState extends State<Event> {
 }
 
 class EventThisDay extends StatelessWidget {
-  const EventThisDay({super.key, required this.events});
+  const EventThisDay({super.key, required this.events, required this.animate});
 
   final List<Map<String, dynamic>> events;
+  final bool animate;
 
   @override
   Widget build(BuildContext context) {
     String minute = DateFormat("mm").format(DateTime.now());
     String hour = DateFormat("HH").format(DateTime.now());
-    return ListView.builder(
+    int duration = 400;
+    return SliverList.builder(
       itemCount: 25,
-      shrinkWrap: true,
-      padding: const EdgeInsets.only(left: 28, right: 28),
       itemBuilder: (context, index) {
-        return Stack(
-          children: [
-            if (index + 1 <= 7 || index + 1 >= 12) Column(
+        duration += 50;
+        return AnimatedSlide(
+          offset: Offset(0, animate ? 0 : 2),
+          curve: Curves.easeOutCubic,
+          duration: Duration(milliseconds: duration),
+          child: AnimatedOpacity(
+            opacity: animate ? 1 : 0,
+            curve: Curves.easeInOutCubic,
+            duration: Duration(milliseconds: duration - 50),
+            child: Stack(
               children: [
-                Row(
+                if (index + 1 <= 7 || index + 1 >= 12) Column(
                   children: [
-                    Expanded(
-                      flex: 1,
-                      child: Text('${(index + 1).toString().length == 1 ? '0${index + 1}' : index + 1}:00', 
-                        style: GoogleFonts.rubik(
-                          color: Colors.grey.shade600,
-                          letterSpacing: 0.5,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w400
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      flex: 5,
-                      child: Divider(color: Colors.grey.shade300)
-                    )
-                  ],
-                ),
-                const SizedBox(height: 38)
-              ] + List.generate(index + 1 == 7 ? 4 : 0, (i) {
-                return Stack(
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        if ((index + i + 2 >= 7) || (index + i + 2 <= 12)) ...[
-                          if (minute != '00' && hour == '${((index + i + 2).toString().length == 1 ? '0' : '')}${index + i + 2}') ...[
-                            Row(
-                              children: [
-                                Expanded(
+                    if (minute != '00' && hour == '${((index + 1).toString().length == 1 ? '0' : '')}${index + 1}') ...[
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Transform.scale(
+                              scale: 1.05,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(6),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(vertical: 6),
+                                  margin: const EdgeInsets.only(left: 2),
+                                  decoration: BoxDecoration(
+                                    color: Colors.green.shade50,
+                                    border: const Border(left: BorderSide(color: Colors.green, width: 3))
+                                  ),
                                   child: Transform.scale(
-                                    scale: 1.5,
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(6),
-                                      child: Container(
-                                        margin: const EdgeInsets.only(left: 2),
-                                        decoration: BoxDecoration(
-                                          color: Colors.green.shade50,
-                                          border: const Border(left: BorderSide(color: Colors.green, width: 2))
-                                        ),
-                                        child: Transform.scale(
-                                          scale: 0.75,
-                                          child: Text('$hour:$minute',
-                                            style: GoogleFonts.rubik(
-                                              color: Colors.green,
-                                              letterSpacing: 0.5,
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w400
+                                    scale: 0.95,
+                                    child: Text('$hour:$minute',
+                                      style: GoogleFonts.rubik(
+                                        color: Colors.green,
+                                        letterSpacing: 0.5,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w400
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ] else ...[
+                      Row(
+                        children: [
+                          Expanded(
+                            flex: 1,
+                            child: Text('${(index + 1).toString().length == 1 ? '0${index + 1}' : index + 1}:00', 
+                              style: GoogleFonts.rubik(
+                                color: Colors.grey.shade600,
+                                letterSpacing: 0.5,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w400
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 5,
+                            child: Divider(color: Colors.grey.shade300)
+                          )
+                        ],
+                      ),
+                    ],
+                  const SizedBox(height: 38) 
+                  ] + List.generate(index + 1 == 7 ? 4 : 0, (i) {
+                    return Stack(
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            if ((index + i + 2 >= 7) || (index + i + 2 <= 12)) ...[
+                              if (minute != '00' && hour == '${((index + i + 2).toString().length == 1 ? '0' : '')}${index + i + 2}') ...[
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Transform.scale(
+                                        scale: 1.5,
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(6),
+                                          child: Container(
+                                            margin: const EdgeInsets.only(left: 2),
+                                            decoration: BoxDecoration(
+                                              color: Colors.green.shade50,
+                                              border: const Border(left: BorderSide(color: Colors.green, width: 3))
+                                            ),
+                                            child: Transform.scale(
+                                              scale: 0.75,
+                                              child: Text('$hour:$minute',
+                                                style: GoogleFonts.rubik(
+                                                  color: Colors.green,
+                                                  letterSpacing: 0.5,
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w400
+                                                ),
+                                              ),
                                             ),
                                           ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                ),
-                                const Expanded(flex: 5, child: SizedBox())
-                              ],
-                            )
-                          ] else ...[
-                            Row(
-                              children: [
-                                Expanded(
-                                  flex: 1,
-                                  child: Text('${(index + i + 2).toString().length == 1 ? '0${index + i + 2}' : index + i + 2}:00', 
-                                    style: GoogleFonts.rubik(
-                                      color: Colors.grey.shade600,
-                                      letterSpacing: 0.5,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w400
-                                    ),
-                                  ),
-                                ),
-                                const Expanded(
-                                  flex: 5,
-                                  child: Divider()
-                                )
-                              ],
-                            ), 
-                          ],
-                        ],
-                        const SizedBox(height: 38)
-                      ]
-                    ),
-                  ],
-                );
-              }),
-            ),
-            if ((index + 1 <= 7) || (index + 1 >= 12)) ...[
-              if (minute != '00' && hour == '${((index + 1).toString().length == 1 ? '0' : '')} ${index + 1}') ...[
-                Transform.scale(
-                  scale: 1.5,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(6),
-                    child: Container(
-                      margin: const EdgeInsets.only(left: 2),
-                      decoration: BoxDecoration(
-                        color: Colors.green.shade50,
-                        border: const Border(left: BorderSide(color: Colors.green, width: 2))
-                      ),
-                      child: Transform.scale(
-                        scale: 0.75,
-                        child: Text('$hour:$minute',
-                          style: GoogleFonts.rubik(
-                            color: Colors.green,
-                            letterSpacing: 0.5,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w400
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ],
-            if (index + 1 == 7) ...[ 
-              Padding(
-                padding: const EdgeInsets.fromLTRB(70, 30, 0 ,0),
-                child: Card(
-                  elevation: 4,
-                  shadowColor: Colors.black26,
-                  surfaceTintColor: Colors.transparent,
-                  margin: EdgeInsets.zero,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  child: SizedBox(
-                    height: 94 * 3,
-                    child: Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            height: 5,
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              color: Colors.blue,
-                              borderRadius: BorderRadius.circular(12)
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          Text('Rapat Posyandu', 
-                            style: GoogleFonts.signikaNegative(
-                              color: Colors.grey.shade800,
-                              fontSize: 22,
-                              fontWeight: FontWeight.w500
-                            )
-                          ),
-                          const SizedBox(height: 4),
-                          IntrinsicHeight(
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                const Padding(
-                                  padding: EdgeInsets.only(top: 3),
-                                  child: Icon(Icons.schedule, color: Colors.grey, size: 18),
-                                ),
-                                const SizedBox(width: 6),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text('07.30 - 11.30',
-                                      style: GoogleFonts.roboto(
-                                        color: Colors.grey,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w500
-                                      )
-                                    ),
+                                    const Expanded(flex: 5, child: SizedBox())
                                   ],
-                                ),
-                                const VerticalDivider(width: 20, indent: 4, endIndent: 4),
-                                Text('4 Jam',
-                                  style: GoogleFonts.roboto(
-                                    color: Colors.grey,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500
-                                  )
-                                ),
+                                )
+                              ] else ...[
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      flex: 1,
+                                      child: Text('${(index + i + 2).toString().length == 1 ? '0${index + i + 2}' : index + i + 2}:00', 
+                                        style: GoogleFonts.rubik(
+                                          color: Colors.grey.shade600,
+                                          letterSpacing: 0.5,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w400
+                                        ),
+                                      ),
+                                    ),
+                                    const Expanded(
+                                      flex: 5,
+                                      child: Divider()
+                                    )
+                                  ],
+                                ), 
                               ],
-                            ),
-                          )
-                        ]
-                      ),
-                    ),
-                  )
+                            ],
+                            const SizedBox(height: 38)
+                          ]
+                        ),
+                      ],
+                    );
+                  }),
                 ),
-              ) 
-            ]
-          ],
+                if (index + 1 == 7) ...[ 
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(70, 30, 0 ,0),
+                    child: Card(
+                      elevation: 4,
+                      shadowColor: Colors.black26,
+                      surfaceTintColor: Colors.transparent,
+                      margin: EdgeInsets.zero,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)
+                      ),
+                      clipBehavior: Clip.antiAlias,
+                      child: SizedBox(
+                        height: 94 * 3,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Container(
+                              height: 5,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                color: Colors.blue,
+                                borderRadius: BorderRadius.circular(12)
+                              ),
+                            ),
+                            Flexible(
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            const SizedBox(height: 16),
+                                            Text('Rapat Posyandu', 
+                                              style: GoogleFonts.signikaNegative(
+                                                color: Colors.grey.shade800,
+                                                fontSize: 22,
+                                                fontWeight: FontWeight.w500
+                                              )
+                                            ),
+                                            const SizedBox(height: 4),
+                                            IntrinsicHeight(
+                                              child: Row(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                mainAxisAlignment: MainAxisAlignment.start,
+                                                children: [
+                                                  const Padding(
+                                                    padding: EdgeInsets.only(top: 3),
+                                                    child: Icon(Icons.schedule, color: Colors.grey, size: 18),
+                                                  ),
+                                                  const SizedBox(width: 6),
+                                                  Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: [
+                                                      Text('07.30 - 11.30',
+                                                        style: GoogleFonts.roboto(
+                                                          color: Colors.grey,
+                                                          fontSize: 16,
+                                                          fontWeight: FontWeight.w500
+                                                        )
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  const VerticalDivider(width: 20, indent: 4, endIndent: 4),
+                                                  Text('4 Jam',
+                                                    style: GoogleFonts.roboto(
+                                                      color: Colors.grey,
+                                                      fontSize: 16,
+                                                      fontWeight: FontWeight.w500
+                                                    )
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Wrap(
+                                          spacing: 8,
+                                          children: List.generate(events[0]['addons'].length, (i) {
+                                            return CircleAvatar(
+                                              radius: 20,
+                                              backgroundColor: events[0]['addons_subcolor'][i],
+                                              child: Icon(events[0]['addons'][i], size: 24, color: events[0]['addons_color'][i])
+                                            );
+                                          }),
+                                        )
+                                      ],
+                                    ),
+                                    const SizedBox(height: 16),
+                                    Flexible(
+                                      child: GestureDetector(
+                                        onTap: () => showDialogImage(context, 'images/pendopo_1.jpg', 'Rapat Posyandu'),
+                                        child: Hero(
+                                          tag: 'Rapat Posyandu',
+                                          child: Container(
+                                            height: double.infinity,
+                                            clipBehavior: Clip.antiAlias,
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(12),
+                                              image: const DecorationImage(
+                                                image: AssetImage('images/pendopo_1.jpg'), 
+                                                fit: BoxFit.cover,
+                                                opacity: 0.75
+                                              )
+                                            ),
+                                            child: Padding(
+                                              padding: const EdgeInsets.all(8),
+                                              child: Column(
+                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                children: [
+                                                  Align(
+                                                    alignment: Alignment.topLeft,
+                                                    child: Container(
+                                                      margin: const EdgeInsets.all(8),
+                                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.grey.shade800,
+                                                        borderRadius: BorderRadius.circular(12)
+                                                      ),
+                                                      child: Text('Pendopo',
+                                                        style: GoogleFonts.varelaRound(
+                                                          color: Colors.white,
+                                                          decoration: TextDecoration.none,
+                                                          fontSize: 18,
+                                                          fontWeight: FontWeight.w600
+                                                        )
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  Align(
+                                                    alignment: Alignment.bottomRight,
+                                                    child: Padding(
+                                                      padding: const EdgeInsets.only(right: 2),
+                                                      child: ElevatedButton.icon(
+                                                        style: ButtonStyle(
+                                                          backgroundColor: const MaterialStatePropertyAll(Colors.white),
+                                                          foregroundColor: MaterialStatePropertyAll(Colors.grey.shade800)
+                                                        ),
+                                                        onPressed: () {}, 
+                                                        icon: const Icon(Icons.location_on), 
+                                                        label: Text('Cari Lokasi', 
+                                                          style: GoogleFonts.rubik(
+                                                            height: 0,
+                                                            letterSpacing: -0.25,
+                                                            fontSize: 16,
+                                                            fontWeight: FontWeight.w500
+                                                          )
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                  ]
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    ),
+                  ) 
+                ]
+              ],
+            ),
+          ),
         );
       }
     );
@@ -459,21 +628,22 @@ class EventThisWeek extends StatelessWidget {
     required this.events, 
     required this.dummyevents, 
     required this.now, 
-    required this.animate
+    required this.animate, 
+    required this.viewAnimate
   });
 
   final List<Map<String, dynamic>> events, dummyevents;
   final DateTime now;
   final bool animate;
 
+  final Function viewAnimate;
+
   @override
   Widget build(BuildContext context) {
     bool open = false;
     int duration = 400;
-    return ListView.builder(
+    return SliverList.builder(
       itemCount: 7,
-      shrinkWrap: true,
-      padding: const EdgeInsets.only(left: 18, right: 28),
       itemBuilder: (context, index) {
         bool today, noevent;
         Color color, subcolor, splashcolor, daycolor, datecolor;
@@ -507,7 +677,7 @@ class EventThisWeek extends StatelessWidget {
           child: AnimatedOpacity(
             opacity: animate ? 1 : 0,
             curve: Curves.easeInOutCubic,
-            duration: Duration(milliseconds: duration + 50),
+            duration: Duration(milliseconds: duration - 50),
             child: Column(
               children: [
                 Row(
@@ -516,7 +686,7 @@ class EventThisWeek extends StatelessWidget {
                     Expanded(
                       child: Column(
                         children: [
-                          Text(today ? events[index]['day'].toUpperCase() : events[index]['day'],
+                          Text(today ? events[index]['day'] : events[index]['day'],
                             style: today 
                             ? GoogleFonts.rubik(
                               color: daycolor,
@@ -558,101 +728,124 @@ class EventThisWeek extends StatelessWidget {
                     const SizedBox(width: 16),
                     Expanded(
                       flex: 4,
-                      child: Material(
-                        elevation: noevent ? 2 : 4,
-                        shadowColor: noevent && !today ? Colors.black12 : Colors.black26,
-                        borderRadius: BorderRadius.circular(today ? 12 : 8),
-                        clipBehavior: Clip.antiAlias,
-                        child: Stack(
-                          alignment: Alignment.centerLeft,
-                          children: [
-                            Container(
-                              decoration: today ? BoxDecoration(
-                                color: color.withOpacity(0.025),
-                                borderRadius: BorderRadius.circular(today ? 12 : 8),
-                                border: Border.all(width: 0, color: Colors.transparent)
-                              ) : open ? null : BoxDecoration(color: Colors.grey.shade100),
-                              child: ListTileTheme(
-                                tileColor: today ? subcolor : null,
-                                dense: true,
-                                minVerticalPadding: 14,
-                                child: ListTile(
-                                  onTap: () {
-                                    if (events[index]['time'] != null) {
-                                      Future.delayed(const Duration(milliseconds: 150)).whenComplete(() {
-                                        return showModalBottomSheet<void>(
-                                          barrierColor: Colors.black26,
-                                          context: context,
-                                          clipBehavior: Clip.antiAlias,
-                                          isScrollControlled: true,
-                                          builder: (BuildContext context) {
-                                            return EventSheet(
-                                              title: events[index]['name'],
-                                              subtitle: events[index]['time'],
-                                              time: (now.day + 1).toString(),
-                                              place: 'Pendopo',
-                                              speaker: true,
-                                            );
-                                          },
-                                        );
-                                      });
-                                    }
-                                  },
-                                  splashColor: splashcolor,
-                                  trailing: events[index]['addons'] != null 
-                                  ? Wrap(
-                                    spacing: 8,
-                                    children: List.generate(events[index]['addons'].length, (i) {
-                                      return CircleAvatar(
-                                        radius: 16,
-                                        backgroundColor: events[index]['addons_subcolor'][i],
-                                        child: Icon(events[index]['addons'][i], size: 20, color: events[index]['addons_color'][i])
-                                      );
-                                    }),
-                                  ) : open
-                                    ? TextButton.icon(
-                                        onPressed: () {},
-                                        style: ButtonStyle(
-                                          iconSize: const MaterialStatePropertyAll(18),
-                                          foregroundColor: MaterialStatePropertyAll(today ? daycolor : Colors.green),
-                                          overlayColor: MaterialStatePropertyAll(Colors.green.shade100)
-                                        ),
-                                        label: const Text('Pesan Tempat'),
-                                        icon: const Icon(Icons.add_home_outlined)
-                                      )
-                                    : null,
-                                  contentPadding: EdgeInsets.fromLTRB(today ? 24 : noevent ? 18 : 20, 0, noevent ? 2 : 18, 0),
-                                  isThreeLine: events[index]['time'] != null ? true : false,
-                                  title: Text(events[index]['name'],
-                                    style: GoogleFonts.signikaNegative(
-                                      color: today 
-                                        ? daycolor
-                                        : open 
-                                          ? noevent
-                                            ? Colors.grey
-                                            : Colors.grey.shade700
-                                          : Colors.grey.shade400,
-                                      letterSpacing: -0.25,
-                                      fontSize: noevent ? 20 : 22,
-                                      fontWeight: FontWeight.w500
-                                    )
+                      child: Column(
+                        children: [
+                          Material(
+                            elevation: noevent && !today ? 2 : 4,
+                            color: open ? null : Colors.white60,
+                            shadowColor: noevent && !today ? Colors.black12 : Colors.black26,
+                            borderRadius: BorderRadius.circular(8),
+                            clipBehavior: Clip.antiAlias,
+                            child: Stack(
+                              children: [
+                                if(!noevent) Align(
+                                  alignment: Alignment.topCenter,
+                                  child: Container(
+                                    height: 4,
+                                    width: double.infinity,
+                                    decoration: BoxDecoration(
+                                      color: Colors.blue.shade400,
+                                    ),
                                   ),
-                                  subtitle: events[index]['time'] != null ? Padding(
-                                    padding: const EdgeInsets.only(bottom: 4, top: 4),
-                                    child: IntrinsicHeight(
-                                      child: Row(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        children: [
-                                          const Padding(
-                                            padding: EdgeInsets.only(top: 3),
-                                            child: Icon(Icons.schedule, color: Colors.grey, size: 18),
-                                          ),
-                                          const SizedBox(width: 6),
-                                          Column(
+                                ),
+                                Container(
+                                  decoration: today ? BoxDecoration(
+                                    color: color.withOpacity(0.000005),
+                                    borderRadius: BorderRadius.circular(today ? 12 : 8),
+                                    border: Border.all(width: 0, color: Colors.transparent)
+                                  ) : null,
+                                  child: ListTileTheme(
+                                    tileColor: today ? subcolor : null,
+                                    dense: true,
+                                    minVerticalPadding: 14,
+                                    child: ListTile(
+                                      onTap: () {
+                                        if (!noevent) {
+                                          Future.delayed(const Duration(milliseconds: 150)).whenComplete(() {
+                                            return showModalBottomSheet<void>(
+                                              barrierColor: Colors.black26,
+                                              context: context,
+                                              clipBehavior: Clip.antiAlias,
+                                              isScrollControlled: true,
+                                              builder: (BuildContext context) {
+                                                return EventSheet(
+                                                  title: events[index]['name'],
+                                                  subtitle: events[index]['time'],
+                                                  time: (now.day + 1).toString(),
+                                                  place: 'Pendopo',
+                                                  speaker: true,
+                                                );
+                                              },
+                                            );
+                                          });
+                                        }
+                                        if (noevent) Future.delayed(const Duration(milliseconds: 150)).whenComplete(() => viewAnimate('Hari'));
+                                      },
+                                      splashColor: splashcolor,
+                                      trailing: events[index]['addons'] != null 
+                                      ? Wrap(
+                                        spacing: 8,
+                                        children: List.generate(events[index]['addons'].length, (i) {
+                                          return CircleAvatar(
+                                            radius: 16,
+                                            backgroundColor: events[index]['addons_subcolor'][i],
+                                            child: Icon(events[index]['addons'][i], size: 20, color: events[index]['addons_color'][i])
+                                          );
+                                        }),
+                                      ) : open
+                                        ? TextButton.icon(
+                                            onPressed: () {},
+                                            style: ButtonStyle(
+                                              iconSize: const MaterialStatePropertyAll(18),
+                                              foregroundColor: MaterialStatePropertyAll(today ? daycolor : Colors.green),
+                                              overlayColor: MaterialStatePropertyAll(Colors.green.shade100)
+                                            ),
+                                            label: const Text('Pesan Tempat'),
+                                            icon: const Icon(Icons.add_home_outlined)
+                                          )
+                                        : null,
+                                      contentPadding: EdgeInsets.fromLTRB(today ? 24 : noevent ? 18 : 20, 0, noevent ? 2 : 18, 0),
+                                      isThreeLine: events[index]['time'] != null ? true : false,
+                                      title: Text(events[index]['name'],
+                                        style: GoogleFonts.signikaNegative(
+                                          color: today 
+                                            ? daycolor
+                                            : open 
+                                              ? noevent
+                                                ? Colors.grey
+                                                : Colors.grey.shade700
+                                              : Colors.grey.shade400,
+                                          letterSpacing: -0.25,
+                                          fontSize: noevent ? 20 : 22,
+                                          fontWeight: FontWeight.w500
+                                        )
+                                      ),
+                                      subtitle: events[index]['time'] != null ? Padding(
+                                        padding: const EdgeInsets.only(bottom: 4, top: 4),
+                                        child: IntrinsicHeight(
+                                          child: Row(
                                             crossAxisAlignment: CrossAxisAlignment.start,
+                                            mainAxisAlignment: MainAxisAlignment.start,
                                             children: [
-                                              Text(events[index]['time'],
+                                              const Padding(
+                                                padding: EdgeInsets.only(top: 3),
+                                                child: Icon(Icons.schedule, color: Colors.grey, size: 18),
+                                              ),
+                                              const SizedBox(width: 6),
+                                              Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(events[index]['time'],
+                                                    style: GoogleFonts.roboto(
+                                                      color: Colors.grey,
+                                                      fontSize: 16,
+                                                      fontWeight: FontWeight.w500
+                                                    )
+                                                  ),
+                                                ],
+                                              ),
+                                              const VerticalDivider(indent: 2, endIndent: 2),
+                                              Text('4 Jam',
                                                 style: GoogleFonts.roboto(
                                                   color: Colors.grey,
                                                   fontSize: 16,
@@ -661,34 +854,75 @@ class EventThisWeek extends StatelessWidget {
                                               ),
                                             ],
                                           ),
-                                          const VerticalDivider(indent: 2, endIndent: 2),
-                                          Text('4 Jam',
-                                            style: GoogleFonts.roboto(
-                                              color: Colors.grey,
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w500
-                                            )
-                                          ),
-                                        ],
+                                        ),
+                                      ) : null,
+                                    ),
+                                  ),
+                                ),
+                                if (today) Positioned.fill(
+                                  child: Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Container(
+                                      width: 5, 
+                                      height: double.infinity,
+                                      decoration: BoxDecoration(
+                                        color: open ? color.withOpacity(0.75) : Colors.grey.shade400,
+                                        borderRadius: BorderRadius.circular(12)
                                       ),
                                     ),
-                                  ) : null,
+                                  ),
                                 ),
+                              ],
+                            ),
+                          ),
+                          if (today) Padding(
+                            padding: const EdgeInsets.only(top: 16),
+                            child: IntrinsicHeight(
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    margin: const EdgeInsets.only(top: 8, left: 6),
+                                    height: 4, 
+                                    width: 28,
+                                    decoration: BoxDecoration(
+                                      color: Colors.blue.shade300,
+                                      borderRadius: BorderRadius.circular(2)
+                                    ),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  RichText(
+                                    text: TextSpan(text: 'Acara berikutnya dimulai\n',
+                                      style: GoogleFonts.rubik(
+                                        color: Colors.grey,
+                                        fontSize: 16
+                                      ),
+                                      children: [
+                                        TextSpan(text: '1 Hari', 
+                                          style: GoogleFonts.rubik(
+                                            color: Colors.blue.shade400,
+                                            wordSpacing: 3,
+                                            height: 1.5
+                                          ),
+                                        ),
+                                        WidgetSpan(child: Container(
+                                          margin: const EdgeInsets.symmetric(horizontal: 8),
+                                          color: Colors.grey.shade300, height: 18, width: 1)
+                                        ),
+                                        TextSpan(text: 'Rapat Posyandu', 
+                                          style: GoogleFonts.rubik(
+                                            color: Colors.blue.shade300,
+                                            height: 1.5
+                                          ),
+                                        ),
+                                      ]
+                                    )
+                                  ),
+                                ],
                               ),
                             ),
-                            if (today) ...[ 
-                              Container(
-                                margin: const EdgeInsets.only(left: 8),
-                                width: 4, 
-                                height: events[index]['time'] != null ? 55 : 25,
-                                decoration: BoxDecoration(
-                                  color: open ? color.withOpacity(0.75) : Colors.grey.shade400,
-                                  borderRadius: BorderRadius.circular(12)
-                                ),
-                              ),
-                            ]
-                          ],
-                        ),
+                          )
+                        ],
                       )
                     ),
                   ],
