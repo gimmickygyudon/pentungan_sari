@@ -349,6 +349,8 @@ class _RecreationPageState extends State<RecreationPage> with TickerProviderStat
 
   List<int> tabsHistory = List.empty(growable: true);
   List<String> viewHistory = List.empty(growable: true);
+  String view = 'Minggu';
+  void changeView (String value) => view = value;
 
   late bool animate;
   late List<bool> animates;
@@ -402,7 +404,14 @@ class _RecreationPageState extends State<RecreationPage> with TickerProviderStat
   }
 
   void changeTabBar(int value, [bool popScope = false]) {
-    if (popScope == false) tabsHistory.add(_tabController.previousIndex);
+    if (popScope == false) {
+      if (value != 1 && _tabController.previousIndex == 1) { 
+        viewHistory.add(view);
+      }
+      viewHistory.add('');
+      tabsHistory.add(_tabController.previousIndex);
+    }
+
     setState(() {
       switch (value) {
         case 0:
@@ -430,11 +439,16 @@ class _RecreationPageState extends State<RecreationPage> with TickerProviderStat
     super.build(context);
     return WillPopScope(
       onWillPop: () async {
-        if (tabsHistory.isNotEmpty && _tabController.index != 1 || viewHistory.isEmpty) {
+        if (widget.pageController.page != 1) return true;
+
+        if (tabsHistory.isNotEmpty && _tabController.index != 1 || viewHistory.isEmpty || viewHistory.last == '') {
           if (tabsHistory.isEmpty) return true;
+
           _tabController.animateTo(tabsHistory.last);
           changeTabBar(tabsHistory.last, true);
           tabsHistory.removeLast();
+          if (viewHistory.last == '') viewHistory.removeLast();
+
           return false;
         } else {
           return true;
@@ -467,7 +481,7 @@ class _RecreationPageState extends State<RecreationPage> with TickerProviderStat
         body: DefaultTabController(
           length: 3,
           child: NestedScrollView(
-            headerSliverBuilder: (context, innerBoxIsScrolled) {
+            headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
               return <Widget>[
                 SliverOverlapAbsorber(
                   handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
@@ -482,7 +496,7 @@ class _RecreationPageState extends State<RecreationPage> with TickerProviderStat
               controller: _tabController,
               children: [
                 Tour(animate: animates[0]),
-                Event(now: now, viewHistory: viewHistory),
+                Event(now: now, view: view, changeView: changeView, viewHistory: viewHistory),
                 const Placeholder(),
               ]
             ),
