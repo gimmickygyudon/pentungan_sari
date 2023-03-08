@@ -51,9 +51,9 @@ class CardEventDay extends StatelessWidget {
               ),
               Flexible(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                  padding: EdgeInsets.fromLTRB(24, 0, 24, duration > 2 ? 24 : 12),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    crossAxisAlignment: duration > 2 ? CrossAxisAlignment.stretch : CrossAxisAlignment.start,
                     children: [
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -62,11 +62,10 @@ class CardEventDay extends StatelessWidget {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const SizedBox(height: 16),
+                              const SizedBox(height: 14),
                               Text(event['name'], 
                                 style: GoogleFonts.signikaNegative(
                                   color: Colors.grey.shade700,
-                                  letterSpacing: -0.25,
                                   fontSize: 22,
                                   fontWeight: FontWeight.w500
                                 )
@@ -119,8 +118,33 @@ class CardEventDay extends StatelessWidget {
                           )
                         ],
                       ),
-                      const SizedBox(height: 12),
-                      Flexible(
+                      const SizedBox(height: 16),
+                      if (duration <= 2) Row(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.only(top: 2),
+                            child: Icon(Icons.location_on, color: Colors.blue, size: 20),
+                          ),
+                          const SizedBox(width: 4),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('${event['location']}, Pentungan Sari',
+                                style: GoogleFonts.roboto(
+                                  color: Colors.blue,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  decoration: TextDecoration.none
+                                )
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      if (duration > 2) Flexible(
                         child: GestureDetector(
                           onTap: () => showDialogImage(context, image, event['name']),
                           child: Hero(

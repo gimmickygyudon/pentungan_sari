@@ -99,7 +99,18 @@ class _EventState extends State<Event> {
         'addons': [ Icons.speaker ],
         'addons_color': [ Colors.orange.shade600 ],
         'addons_subcolor': [ Colors.orange.shade50 ]
-
+      },
+      {
+        'start': 13.00,
+        'end': 15.30,
+        'date': (widget.now.day + 1).toString(),
+        'day': DateFormat('EEEE', 'id').format(DateTime(widget.now.day + 1)),
+        'name': 'Lomba Renang SD',
+        'time': '13.30 - 15.30',
+        'location': 'Kolam',
+        'addons': [ Icons.speaker ],
+        'addons_color': [ Colors.orange.shade600 ],
+        'addons_subcolor': [ Colors.orange.shade50 ]
       }
     ];
 
@@ -405,7 +416,7 @@ class _EventThisDayState extends State<EventThisDay> {
     String hour = DateFormat("HH").format(DateTime.now());
 
     int duration = 400;
-    int skip = 0;
+    int skip = 0, miniskip = 0;
     return SliverToBoxAdapter(
       child: Stack(
         children: [
@@ -422,25 +433,26 @@ class _EventThisDayState extends State<EventThisDay> {
                   curve: Curves.easeInOutCubic,
                   duration: Duration(milliseconds: duration - 50),
                   child: SizedBox(
-                    height: currentTime ? 76 : 64,
+                    height: 64,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         if (currentTime) ...[
                           Transform.scale(
                             key: currentTimeKey,
-                            scale: 1.05,
+                            scaleX: 1.05,
+                            scaleY: 1.4,
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(6),
                               child: Container(
-                                padding: const EdgeInsets.symmetric(vertical: 6),
                                 margin: const EdgeInsets.only(left: 2),
                                 decoration: BoxDecoration(
                                   color: Colors.green.shade50,
                                   border: const Border(left: BorderSide(color: Colors.green, width: 3))
                                 ),
                                 child: Transform.scale(
-                                  scale: 0.95,
+                                  scaleX: 0.95,
+                                  scaleY: 0.75,
                                   child: Text('$hour:$minute',
                                     style: GoogleFonts.rubik(
                                       color: Colors.green,
@@ -529,6 +541,7 @@ class _EventThisDayState extends State<EventThisDay> {
                       },
                       child: (() { 
                         if (events[index] != null && events[index]!['location'] == widget.location) {
+                          miniskip++;
                           return Padding(
                           key: UniqueKey(),
                           padding: const EdgeInsets.only(left: 70, bottom: 12),
@@ -546,12 +559,16 @@ class _EventThisDayState extends State<EventThisDay> {
                             ),
                           );
                         }
-                        else { return SizedBox(height: skip != 0 ? 0 : 64); }
+                        else { 
+                          Widget widget = SizedBox(height: skip != 0 ? miniskip != 0 ? 28 : 0 : 64);
+                          if (skip != 0) skip--;
+                          if (miniskip != 0) miniskip--;
+                          return widget;
+                        }
                       }())
                     ),
                   ),
                 );
-                if (element == const SizedBox()) if (skip != 0) skip--;
                 return element;
               }),
             ),
@@ -920,13 +937,16 @@ class EventSheet extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        CircleAvatar(
-                          backgroundColor: Colors.blue.shade50,
-                          foregroundColor: Colors.blue,
-                          radius: 30,
-                          child: const Icon(Icons.foundation, size: 34)
+                        Visibility(
+                          visible: false,
+                          child: CircleAvatar(
+                            backgroundColor: Colors.blue.shade50,
+                            foregroundColor: Colors.blue,
+                            radius: 30,
+                            child: const Icon(Icons.foundation, size: 34)
+                          ),
                         ),
-                        const SizedBox(width: 24),
+                        // const SizedBox(width: 24),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
@@ -934,12 +954,11 @@ class EventSheet extends StatelessWidget {
                               style: GoogleFonts.signikaNegative(
                                 color: Colors.grey.shade700,
                                 height: 0,
-                                letterSpacing: -0.5,
                                 fontSize: 24,
                                 fontWeight: FontWeight.w500
                               )
                             ),
-                            const SizedBox(height: 2),
+                            const SizedBox(height: 4),
                             IntrinsicHeight(
                               child: Row(
                                 children: [
@@ -967,12 +986,15 @@ class EventSheet extends StatelessWidget {
                         ),
                       ],
                     ),
-                    Tooltip(
-                      triggerMode: TooltipTriggerMode.tap,
-                      preferBelow: false,
-                      message: 'Speaker',
-                      textStyle: GoogleFonts.rubik(fontSize: 18, color: Colors.white),
-                      child: Icon(Icons.speaker, size: 28, color: Colors.grey.shade700)
+                    Wrap(
+                      spacing: 8,
+                      children: List.generate(event['addons'].length, (i) {
+                        return CircleAvatar(
+                          radius: 24,
+                          backgroundColor: event['addons_subcolor'][i],
+                          child: Icon(event['addons'][i], size: 28, color: event['addons_color'][i])
+                        );
+                      }),
                     )
                   ],
                 ),

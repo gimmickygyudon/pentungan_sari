@@ -84,6 +84,17 @@ String findLocationImage(Map<String, dynamic> event) {
   return string;
 }
 
+IconData findLocationIcon(Map<String, dynamic> event) {
+  IconData icon = Icons.error;
+  for (var location in locations) { 
+    if (location['name'] == event['location']) {
+      icon = location['icon'];
+    }
+  }
+
+  return icon;
+}
+
 int countEventDuration(dynamic start, dynamic end) {
   int first = int.parse(start.toString().substring(0, start.toString().indexOf('.')));
   int last = int.parse(end.toString().substring(0, end.toString().indexOf('.')));
