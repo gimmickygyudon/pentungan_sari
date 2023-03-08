@@ -3,8 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:pentungan_sari/assets/card.dart';
 import 'package:pentungan_sari/assets/dialog.dart';
 
+import '../../assets/object.dart';
 import '../../function/builder.dart';
 
 class Event extends StatefulWidget {
@@ -44,9 +46,15 @@ class _EventState extends State<Event> {
   late List<Map<String, dynamic>> events, dummyevents;
   late DateTime startOfWeek, endOfWeek;
 
-  late String view;
+  late String view, location;
   late List<bool> animates;
   late bool animate;
+
+  Map<String, IconData> weekdays = {
+    'Hari': Icons.sunny, 
+    'Minggu': Icons.filter_list, 
+    'Bulan': Icons.calendar_view_month
+  };
 
   @override
   void initState() {
@@ -58,24 +66,42 @@ class _EventState extends State<Event> {
       view = widget.view;
     }
 
-    dummyevents = [
-      {
-        'date': (widget.now.day + 1).toString(),
-        'day': DateFormat('EEEE', 'id').format(DateTime(widget.now.day + 2)),
-        'name': 'Rapat Posyandu',
-        'time': '07.30 - 11.30',
-        'addons': [ Icons.speaker, Icons.foundation ],
-        'addons_color': [ Colors.orange.shade600, Colors.blue.shade600 ],
-        'addons_subcolor': [ Colors.orange.shade50, Colors.blue.shade50 ]
-      }
-    ];
-
     startOfWeek = getDate(widget.now.subtract(Duration(days: widget.now.weekday - 1)));
     endOfWeek = getDate(widget.now.add(Duration(days: DateTime.daysPerWeek - widget.now.weekday)));
 
     final daysInLastMonth = DateUtils.getDaysInMonth(widget.now.year, widget.now.month - 1);
     final daysInMonth = DateUtils.getDaysInMonth(widget.now.year, widget.now.month);
     int date = startOfWeek.day;
+
+    location = 'Pendopo';
+
+    dummyevents = [
+      {
+        'start': 8.30,
+        'end': 12.30,
+        'date': (widget.now.day + 1).toString(),
+        'day': DateFormat('EEEE', 'id').format(DateTime(widget.now.day + 1)),
+        'name': 'Rapat Posyandu',
+        'time': '08.30 - 11.30',
+        'location': 'Pendopo',
+        'addons': [ Icons.speaker ],
+        'addons_color': [ Colors.orange.shade600 ],
+        'addons_subcolor': [ Colors.orange.shade50 ]
+      },
+      {
+        'start': 6.00,
+        'end': 9.30,
+        'date': (widget.now.day + 1).toString(),
+        'day': DateFormat('EEEE', 'id').format(DateTime(widget.now.day + 1)),
+        'name': 'Senam Pagi',
+        'time': '06.30 - 09.30',
+        'location': 'Halaman Depan',
+        'addons': [ Icons.speaker ],
+        'addons_color': [ Colors.orange.shade600 ],
+        'addons_subcolor': [ Colors.orange.shade50 ]
+
+      }
+    ];
 
     events = List.generate(7, (index) {
       int days;
@@ -86,20 +112,24 @@ class _EventState extends State<Event> {
         'date': date.toString(),
         'day': DateFormat('EEEE', 'id').format(DateTime(widget.now.year, widget.now.month, date)),
         'name': 'Hari Biasa',
+        'location': null,
         'time': null,
-        'addons': null
+        'addons': null,
+        'event': []
       };
 
       date++;
       return list;
     });
 
-    int i = 0;
-    for (var element in events) {
-      if (element['date'] == dummyevents[0]['date']) {
-        events.replaceRange(i, i + 1, dummyevents);
+    for (var event in events) {
+      int i = 0;
+      for (var dummyevent in dummyevents) { 
+       if (event['date'] == dummyevent['date']) {
+          event['event'].insert(i, dummyevent);
+        }
+        i++;
       }
-      i++;
     }
 
     animates = [ false, false, false ];
@@ -138,6 +168,8 @@ class _EventState extends State<Event> {
       );
     }
   }
+
+  void changeLocation(String value) => setState(() => location = value);
 
   int viewIndex(String view) {
     switch (view) {
@@ -183,7 +215,7 @@ class _EventState extends State<Event> {
                       SliverAppBar(
                         pinned: true,
                         forceElevated: true,
-                        toolbarHeight: 20,
+                        toolbarHeight: 28,
                         elevation: 4,
                         shadowColor: Colors.black38,
                         surfaceTintColor: Colors.transparent,
@@ -200,67 +232,75 @@ class _EventState extends State<Event> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                DropdownButton(
-                                  value: view,
-                                  onChanged: (value) {
-                                    viewAnimate(value as String);
-                                  },
-                                  underline: const SizedBox(),
-                                  isDense: true,
-                                  style: GoogleFonts.varelaRound(
-                                    color: Colors.grey.shade600,
-                                    fontSize: 20,
-                                    letterSpacing: 0.5,
-                                    fontWeight: FontWeight.w600
-                                  ),
-                                  icon: Padding(
-                                    padding: const EdgeInsets.only(left: 8),
-                                    child: Icon(Icons.arrow_drop_down, color: Colors.grey.shade600),
-                                  ),
-                                  iconSize: 32,
-                                  borderRadius: BorderRadius.circular(12),
-                                  padding: const EdgeInsets.only(left: 8),
-                                  items: [
-                                    DropdownMenuItem(
-                                      value: 'Hari',
-                                      child: Row(
-                                        children: [
-                                          Padding(
-                                            padding: const EdgeInsets.only(bottom: 2),
-                                            child: Icon(Icons.sunny, size: 24, color: Colors.yellow.shade700),
-                                          ),
-                                          const SizedBox(width: 12),
-                                          const Text('Hari'),
-                                        ],
-                                      )
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey.shade200,
+                                        borderRadius: BorderRadius.circular(12)
+                                      ),
+                                      child: DropdownButton(
+                                        value: view,
+                                        onChanged: (value) {
+                                          viewAnimate(value as String);
+                                        },
+                                        underline: const SizedBox(),
+                                        isDense: true,
+                                        style: GoogleFonts.varelaRound(
+                                          color: Colors.grey.shade600,
+                                          fontSize: 20,
+                                          letterSpacing: 0.5,
+                                          fontWeight: FontWeight.w600
+                                        ),
+                                        icon: Padding(
+                                          padding: const EdgeInsets.only(left: 8),
+                                          child: Icon(Icons.arrow_drop_down, color: Colors.grey.shade600),
+                                        ),
+                                        iconSize: 32,
+                                        borderRadius: BorderRadius.circular(12),
+                                        padding: const EdgeInsets.fromLTRB(12, 4, 0, 4),
+                                        items: weekdays.entries.map<DropdownMenuItem<String>>((element) {
+                                          return DropdownMenuItem<String>(
+                                            value: element.key,
+                                            child: Text(element.key)
+                                          );
+                                        }).toList()
+                                      ),
                                     ),
-                                    DropdownMenuItem(
-                                      value: 'Minggu',
-                                      child: Row(
-                                        children: [
-                                          Padding(
-                                            padding: const EdgeInsets.only(bottom: 2),
-                                            child: Icon(Icons.filter_list, size: 24, color: Colors.grey.shade700),
-                                          ),
-                                          const SizedBox(width: 12),
-                                          const Text('Minggu'),
-                                        ],
-                                      )
-                                    ),
-                                    DropdownMenuItem(
-                                      value: 'Bulan',
-                                      child: Row(
-                                        children: [
-                                          Padding(
-                                            padding: const EdgeInsets.only(bottom: 2),
-                                            child: Icon(Icons.calendar_view_month, size: 24, color: Colors.grey.shade700),
-                                          ),
-                                          const SizedBox(width: 12),
-                                          const Text('Bulan'),
-                                        ],
-                                      )
+                                    const SizedBox(width: 8),
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey.shade200,
+                                        borderRadius: BorderRadius.circular(12)
+                                      ),
+                                      child: DropdownButton(
+                                        value: location,
+                                        onChanged: (value) => changeLocation(value as String),
+                                        underline: const SizedBox(),
+                                        isDense: true,
+                                        style: GoogleFonts.varelaRound(
+                                          color: Colors.grey.shade600,
+                                          fontSize: 20,
+                                          letterSpacing: 0.5,
+                                          fontWeight: FontWeight.w600
+                                        ),
+                                        icon: Padding(
+                                          padding: const EdgeInsets.only(left: 12),
+                                          child: Icon(Icons.location_on, color: Colors.grey.shade600),
+                                        ),
+                                        iconSize: 24,
+                                        borderRadius: BorderRadius.circular(12),
+                                        padding: const EdgeInsets.fromLTRB(12, 8, 4, 8),
+                                        items: locations.map<DropdownMenuItem<String>>((element) {
+                                          return DropdownMenuItem<String>(
+                                            value: element['name'],
+                                            child: Text(element['name'])
+                                          );
+                                        }).toList()
+                                      ),
                                     )
-                                  ]
+                                  ],
                                 ),
                                 IconButton(
                                   onPressed: (){}, 
@@ -286,7 +326,7 @@ class _EventState extends State<Event> {
                         sliver: (() {
                           switch (view) {
                             case 'Hari':
-                              return EventThisDay(events: dummyevents, animate: animates[0]);
+                              return EventThisDay(events: dummyevents, animate: animates[0], location: location, changeLocation: changeLocation);
                             case 'Bulan':
                               return EventThisWeek(events: events, dummyevents: dummyevents, now: widget.now, animate: animates[1], viewAnimate: viewAnimate);
                             default:
@@ -307,10 +347,18 @@ class _EventState extends State<Event> {
 }
 
 class EventThisDay extends StatefulWidget {
-  const EventThisDay({super.key, required this.events, required this.animate});
+  const EventThisDay({
+    super.key, 
+    required this.events, 
+    required this.animate, 
+    required this.location, 
+    required this.changeLocation
+  });
 
   final List<Map<String, dynamic>> events;
   final bool animate;
+  final String location;
+  final Function changeLocation;
 
   @override
   State<EventThisDay> createState() => _EventThisDayState();
@@ -318,9 +366,15 @@ class EventThisDay extends StatefulWidget {
 
 class _EventThisDayState extends State<EventThisDay> {
   final currentTimeKey = GlobalKey();
+
+  List<Map<String, dynamic>?> events = List.filled(24, null);
   
   @override
   void initState() {
+    for (var element in widget.events) {
+      int start = int.parse(element['start'].toString().substring(0, element['start'].toString().indexOf('.')));
+      events[start] = element;
+    }
     super.initState();
   }
 
@@ -351,327 +405,159 @@ class _EventThisDayState extends State<EventThisDay> {
     String hour = DateFormat("HH").format(DateTime.now());
 
     int duration = 400;
+    int skip = 0;
     return SliverToBoxAdapter(
-      child: Column(
-        children: List.generate(25, (index) {
-          duration += 50;
-          return AnimatedSlide(
-            offset: Offset(0, widget.animate ? 0 : 2),
-            curve: Curves.easeOutCubic,
-            duration: Duration(milliseconds: duration),
-            child: AnimatedOpacity(
-              opacity: widget.animate ? 1 : 0,
-              curve: Curves.easeInOutCubic,
-              duration: Duration(milliseconds: duration - 50),
-              child: Stack(
-                children: [
-                  if (index <= 6 || index >= 11) Column(
-                    children: [
-                      if (minute != '00' && hour == '${((index).toString().length == 1 ? '0' : '')}$index') ...[
-                        Row(
-                          key: currentTimeKey,
-                          children: [
-                            Expanded(
-                              child: Transform.scale(
-                                scale: 1.05,
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(6),
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(vertical: 6),
-                                    margin: const EdgeInsets.only(left: 2),
-                                    decoration: BoxDecoration(
-                                      color: Colors.green.shade50,
-                                      border: const Border(left: BorderSide(color: Colors.green, width: 3))
-                                    ),
-                                    child: Transform.scale(
-                                      scale: 0.95,
-                                      child: Text('$hour:$minute',
-                                        style: GoogleFonts.rubik(
-                                          color: Colors.green,
-                                          letterSpacing: 0.5,
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w400
-                                        ),
-                                      ),
+      child: Stack(
+        children: [
+          Column(
+            children: List.generate(25, (index) {
+              bool currentTime = minute != '00' && hour == '${((index).toString().length == 1 ? '0' : '')}$index';
+              duration += 50;
+              return AnimatedSlide(
+                offset: Offset(0, widget.animate ? 0 : 2),
+                curve: Curves.easeOutCubic,
+                duration: Duration(milliseconds: duration),
+                child: AnimatedOpacity(
+                  opacity: widget.animate ? 1 : 0,
+                  curve: Curves.easeInOutCubic,
+                  duration: Duration(milliseconds: duration - 50),
+                  child: SizedBox(
+                    height: currentTime ? 76 : 64,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        if (currentTime) ...[
+                          Transform.scale(
+                            key: currentTimeKey,
+                            scale: 1.05,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(6),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(vertical: 6),
+                                margin: const EdgeInsets.only(left: 2),
+                                decoration: BoxDecoration(
+                                  color: Colors.green.shade50,
+                                  border: const Border(left: BorderSide(color: Colors.green, width: 3))
+                                ),
+                                child: Transform.scale(
+                                  scale: 0.95,
+                                  child: Text('$hour:$minute',
+                                    style: GoogleFonts.rubik(
+                                      color: Colors.green,
+                                      letterSpacing: 0.5,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w400
                                     ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ] else ...[
-                        Row(
-                          children: [
-                            Expanded(
-                              flex: 1,
-                              child: Text('${(index).toString().length == 1 ? '0$index' : index}:00', 
-                                style: GoogleFonts.rubik(
-                                  color: Colors.grey.shade600,
-                                  letterSpacing: 0.5,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w400
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              flex: 5,
-                              child: Divider(color: Colors.grey.shade300)
-                            )
-                          ],
-                        ),
-                      ],
-                    const SizedBox(height: 38) 
-                    ] + List.generate(index + 1 == 7 ? 4 : 0, (i) {
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          if ((index + i + 1 >= 7) || (index + i + 1 <= 12)) ...[
-                            if (minute != '00' && hour == '${((index + i + 1).toString().length == 1 ? '0' : '')}${index + i + 1}') ...[
-                              Row(
-                                key: currentTimeKey,
-                                children: [
-                                  Expanded(
-                                    child: Transform.scale(
-                                      scale: 1.5,
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(6),
-                                        child: Container(
-                                          margin: const EdgeInsets.only(left: 2),
-                                          decoration: BoxDecoration(
-                                            color: Colors.green.shade50,
-                                            border: const Border(left: BorderSide(color: Colors.green, width: 3))
-                                          ),
-                                          child: Transform.scale(
-                                            scale: 0.75,
-                                            child: Text('$hour:$minute',
-                                              style: GoogleFonts.rubik(
-                                                color: Colors.green,
-                                                letterSpacing: 0.5,
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.w400
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  const Expanded(flex: 5, child: SizedBox())
-                                ],
-                              )
-                            ] else ...[
-                              Row(
-                                children: [
-                                  Expanded(
-                                    flex: 1,
-                                    child: Text('${(index + i + 1).toString().length == 1 ? '0${index + i + 1}' : index + i + 1}:00', 
-                                      style: GoogleFonts.rubik(
-                                        color: Colors.grey.shade600,
-                                        letterSpacing: 0.5,
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w400
-                                      ),
-                                    ),
-                                  ),
-                                  const Expanded(
-                                    flex: 5,
-                                    child: Divider()
-                                  )
-                                ],
-                              ), 
-                            ],
-                          ],
-                          const SizedBox(height: 38)
-                        ]
-                      );
-                    }),
-                  ),
-                  if (index + 1 == 7) ...[ 
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(70, 30, 0 ,0),
-                      child: Card(
-                        elevation: 4,
-                        shadowColor: Colors.black26,
-                        surfaceTintColor: Colors.transparent,
-                        margin: EdgeInsets.zero,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)
-                        ),
-                        clipBehavior: Clip.antiAlias,
-                        child: InkWell(
-                          splashColor: Colors.blue.shade100,
-                          onTap: () {
-                            Timer(const Duration(milliseconds: 150), () => showEventSheet(context, widget.events, 0, DateTime.now()));
-                          },
-                          child: SizedBox(
-                            height: 94 * 3,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Container(
-                                  height: 5,
-                                  width: double.infinity,
-                                  decoration: BoxDecoration(
-                                    color: Colors.blue,
-                                    borderRadius: BorderRadius.circular(12)
-                                  ),
-                                ),
-                                Flexible(
-                                  child: Padding(
-                                    padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                                      children: [
-                                        Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                const SizedBox(height: 16),
-                                                Text('Rapat Posyandu', 
-                                                  style: GoogleFonts.signikaNegative(
-                                                    color: Colors.grey.shade800,
-                                                    fontSize: 22,
-                                                    fontWeight: FontWeight.w500
-                                                  )
-                                                ),
-                                                const SizedBox(height: 4),
-                                                IntrinsicHeight(
-                                                  child: Row(
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                                    mainAxisAlignment: MainAxisAlignment.start,
-                                                    children: [
-                                                      const Padding(
-                                                        padding: EdgeInsets.only(top: 3),
-                                                        child: Icon(Icons.schedule, color: Colors.grey, size: 18),
-                                                      ),
-                                                      const SizedBox(width: 6),
-                                                      Column(
-                                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                                        children: [
-                                                          Text('07.30 - 11.30',
-                                                            style: GoogleFonts.roboto(
-                                                              color: Colors.grey,
-                                                              fontSize: 16,
-                                                              fontWeight: FontWeight.w500
-                                                            )
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      const VerticalDivider(width: 20, indent: 4, endIndent: 4),
-                                                      Text('4 Jam',
-                                                        style: GoogleFonts.roboto(
-                                                          color: Colors.grey,
-                                                          fontSize: 16,
-                                                          fontWeight: FontWeight.w500
-                                                        )
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            Wrap(
-                                              spacing: 8,
-                                              children: List.generate(widget.events[0]['addons'].length, (i) {
-                                                return CircleAvatar(
-                                                  radius: 20,
-                                                  backgroundColor: widget.events[0]['addons_subcolor'][i],
-                                                  child: Icon(widget.events[0]['addons'][i], size: 24, color: widget.events[0]['addons_color'][i])
-                                                );
-                                              }),
-                                            )
-                                          ],
-                                        ),
-                                        const SizedBox(height: 16),
-                                        Flexible(
-                                          child: GestureDetector(
-                                            onTap: () => showDialogImage(context, 'images/pendopo_1.jpg', 'Rapat Posyandu'),
-                                            child: Hero(
-                                              tag: 'Rapat Posyandu',
-                                              child: Container(
-                                                height: double.infinity,
-                                                clipBehavior: Clip.antiAlias,
-                                                decoration: BoxDecoration(
-                                                  borderRadius: BorderRadius.circular(12),
-                                                  image: const DecorationImage(
-                                                    image: AssetImage('images/pendopo_1.jpg'), 
-                                                    fit: BoxFit.cover,
-                                                    opacity: 0.75
-                                                  )
-                                                ),
-                                                child: Padding(
-                                                  padding: const EdgeInsets.all(8),
-                                                  child: Column(
-                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                    children: [
-                                                      Align(
-                                                        alignment: Alignment.topLeft,
-                                                        child: Container(
-                                                          margin: const EdgeInsets.all(8),
-                                                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                                                          decoration: BoxDecoration(
-                                                            color: Colors.grey.shade800,
-                                                            borderRadius: BorderRadius.circular(12)
-                                                          ),
-                                                          child: Text('Pendopo',
-                                                            style: GoogleFonts.varelaRound(
-                                                              color: Colors.white,
-                                                              decoration: TextDecoration.none,
-                                                              fontSize: 18,
-                                                              fontWeight: FontWeight.w600
-                                                            )
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      Align(
-                                                        alignment: Alignment.bottomRight,
-                                                        child: Padding(
-                                                          padding: const EdgeInsets.only(right: 2),
-                                                          child: ElevatedButton.icon(
-                                                            style: ButtonStyle(
-                                                              backgroundColor: const MaterialStatePropertyAll(Colors.white),
-                                                              foregroundColor: MaterialStatePropertyAll(Colors.grey.shade800)
-                                                            ),
-                                                            onPressed: () {}, 
-                                                            icon: const Icon(Icons.location_on), 
-                                                            label: Text('Cari Lokasi', 
-                                                              style: GoogleFonts.rubik(
-                                                                height: 0,
-                                                                letterSpacing: -0.25,
-                                                                fontSize: 16,
-                                                                fontWeight: FontWeight.w500
-                                                              )
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        )
-                                      ]
-                                    ),
-                                  ),
-                                ),
-                              ],
                             ),
                           ),
-                        )
-                      ),
-                    ) 
-                  ]
-                ],
-              ),
+                        ] else ...[
+                          Row(
+                            children: [
+                              Expanded(
+                                flex: 1,
+                                child: Text('${(index).toString().length == 1 ? '0$index' : index}:00', 
+                                  style: GoogleFonts.rubik(
+                                    color: Colors.grey.shade600,
+                                    letterSpacing: 0.5,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w400
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                flex: 5,
+                                child: Divider(color: Colors.grey.shade300)
+                              )
+                            ],
+                          ),
+                        ],
+                      const SizedBox(height: 38) 
+                      ]
+                    ),
+                  ),
+                ),
+              );
+            }
+          )), 
+          Positioned.fill(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: List.generate(events.length, (index) {
+                late Widget element;
+                if (index == 0) duration = 400;
+                duration += 50;
+                
+                if (events[index] != null && events[index]!['location'] == widget.location) {
+                  skip = countEventDuration(events[index]!['start'], events[index]!['end']);
+                }
+
+                element = AnimatedSlide(
+                  offset: Offset(0, widget.animate ? 0 : 1),
+                  curve: Curves.easeOutCubic,
+                  duration: Duration(milliseconds: duration),
+                  child: AnimatedOpacity(
+                    opacity: widget.animate ? 1 : 0,
+                    curve: Curves.easeInOutCubic,
+                    duration: Duration(milliseconds: duration - 50),
+                    child: AnimatedSwitcher(
+                      switchInCurve: Curves.easeInOutCubic,
+                      switchOutCurve: Curves.easeInOutCubic,
+                      duration: const Duration(milliseconds: 600),
+                      layoutBuilder: (currentChild, previousChildren) {
+                        return Stack(
+                          alignment: Alignment.topRight,
+                          children: <Widget>[
+                            if (currentChild != null) currentChild,
+                          ],
+                        );
+                      },
+                      transitionBuilder: (child, animation) {
+                        return SlideTransition(
+                          position: Tween<Offset>(
+                            begin: const Offset(0.5, 0),
+                            end: const Offset(0, 0),
+                          ).animate(animation), 
+                          child: FadeTransition(
+                            opacity: animation,
+                            child: child
+                          )
+                        );
+                      },
+                      child: (() { 
+                        if (events[index] != null && events[index]!['location'] == widget.location) {
+                          return Padding(
+                          key: UniqueKey(),
+                          padding: const EdgeInsets.only(left: 70, bottom: 12),
+                            child: CardEventDay(event: events[index]!, duration: skip.toDouble(), showEventSheet: showEventSheet, showDialogImage: showDialogImage),
+                          );
+                        } else if (events[index] != null) {
+                          return Padding(
+                            key: UniqueKey(),
+                            padding: const EdgeInsets.only(top: 0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                CardEventDayNext(event: events[index]!, next: true, changeLocation: widget.changeLocation),
+                              ],
+                            ),
+                          );
+                        }
+                        else { return SizedBox(height: skip != 0 ? 0 : 64); }
+                      }())
+                    ),
+                  ),
+                );
+                if (element == const SizedBox()) if (skip != 0) skip--;
+                return element;
+              }),
             ),
-          );
-        }
-      ))
+          ) 
+        ],
+      )
     );
   }
 }
@@ -816,7 +702,7 @@ class EventThisWeek extends StatelessWidget {
                                       onTap: () {
                                         if (!noevent) {
                                           Future.delayed(const Duration(milliseconds: 150)).whenComplete(() {
-                                            return showEventSheet(context, events, index, now);
+                                            return showEventSheet(context, events[index], now);
                                           });
                                         }
                                         if (noevent) Future.delayed(const Duration(milliseconds: 150)).whenComplete(() => viewAnimate('Hari'));
@@ -977,7 +863,7 @@ class EventThisWeek extends StatelessWidget {
   }
 }
 
-void showEventSheet(BuildContext context, List<Map<String, dynamic>> events, int index, DateTime now) {
+void showEventSheet(BuildContext context, Map<String, dynamic> event, DateTime now) {
   showModalBottomSheet<void>(
     barrierColor: Colors.black38,
     context: context,
@@ -985,11 +871,7 @@ void showEventSheet(BuildContext context, List<Map<String, dynamic>> events, int
     isScrollControlled: true,
     builder: (BuildContext context) {
       return EventSheet(
-        title: events[index]['name'],
-        subtitle: events[index]['time'],
-        time: (now.day + 1).toString(),
-        place: 'Pendopo',
-        speaker: true,
+        event: event,
       );
     },
   );
@@ -997,19 +879,17 @@ void showEventSheet(BuildContext context, List<Map<String, dynamic>> events, int
 
 class EventSheet extends StatelessWidget {
   const EventSheet({
-    super.key, 
-    required this.title, 
-    required this.subtitle, 
-    required this.time, 
-    required this.place, 
-    required this.speaker
+    super.key,
+    required this.event, 
   });
 
-  final String title, subtitle, time, place;
-  final bool speaker;
+  final Map<String, dynamic> event;
 
   @override
   Widget build(BuildContext context) {
+    String image = findLocationImage(event);
+    int duration = countEventDuration(event['start'], event['end']);
+
     return Container(
       color: Colors.white,
       child: Wrap(
@@ -1050,28 +930,38 @@ class EventSheet extends StatelessWidget {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
-                            Text(title,
+                            Text(event['name'],
                               style: GoogleFonts.signikaNegative(
                                 color: Colors.grey.shade700,
                                 height: 0,
                                 letterSpacing: -0.5,
-                                fontSize: 26,
+                                fontSize: 24,
                                 fontWeight: FontWeight.w500
                               )
                             ),
-                            const SizedBox(height: 4),
-                            Row(
-                              children: [
-                                const Icon(Icons.schedule, color: Colors.grey, size: 20),
-                                const SizedBox(width: 8),
-                                Text(subtitle,
-                                  style: GoogleFonts.roboto(
-                                    color: Colors.grey,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w500
-                                  )
-                                ),
-                              ],
+                            const SizedBox(height: 2),
+                            IntrinsicHeight(
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.schedule, color: Colors.grey, size: 20),
+                                  const SizedBox(width: 8),
+                                  Text(event['time'],
+                                    style: GoogleFonts.roboto(
+                                      color: Colors.grey,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w500
+                                    )
+                                  ),
+                                  const VerticalDivider(width: 20, indent: 4, endIndent: 4),
+                                  Text('$duration Jam',
+                                    style: GoogleFonts.roboto(
+                                      color: Colors.grey,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w500
+                                    )
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),
@@ -1097,7 +987,7 @@ class EventSheet extends StatelessWidget {
                       children: [
                         Icon(Icons.event, size: 28, color: Colors.grey.shade700),
                         const SizedBox(width: 16),
-                        Text(DateFormat('EEEE, dd MMMM', 'id').format(DateTime.now()),
+                        Text(DateFormat('EEEE, dd MMMM yyyy', 'id').format(DateTime.now()),
                           style: GoogleFonts.varelaRound(
                             color: Colors.grey.shade700,
                             fontSize: 20,
@@ -1118,7 +1008,7 @@ class EventSheet extends StatelessWidget {
                       children: [
                         Icon(Icons.schedule, size: 28, color: Colors.grey.shade700),
                         const SizedBox(width: 16),
-                        Text('07.30 - 11.30',
+                        Text(event['time'],
                           style: GoogleFonts.varelaRound(
                             color: Colors.grey.shade700,
                             fontSize: 20,
@@ -1139,7 +1029,7 @@ class EventSheet extends StatelessWidget {
                       children: [
                         Icon(Icons.location_on, size: 28, color: Colors.grey.shade700),
                         const SizedBox(width: 16),
-                        Text('Pendopo, Pentungan Sari',
+                        Text('${event['location']}, Pentungan Sari',
                           style: GoogleFonts.varelaRound(
                             color: Colors.grey.shade700,
                             fontSize: 20,
@@ -1167,9 +1057,9 @@ class EventSheet extends StatelessWidget {
                               height: 160,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(12),
-                                image: const DecorationImage(
+                                image: DecorationImage(
                                   fit: BoxFit.cover,
-                                  image: AssetImage('images/pendopo_1.jpg')
+                                  image: AssetImage(image)
                                 )
                               ),
                             ),

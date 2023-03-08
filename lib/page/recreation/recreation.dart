@@ -349,7 +349,7 @@ class _RecreationPageState extends State<RecreationPage> with TickerProviderStat
 
   List<int> tabsHistory = List.empty(growable: true);
   List<String> viewHistory = List.empty(growable: true);
-  String view = 'Minggu';
+  String view = 'Hari';
   void changeView (String value) => view = value;
 
   late bool animate;

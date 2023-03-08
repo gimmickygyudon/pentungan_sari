@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:pentungan_sari/assets/object.dart';
 import 'package:pentungan_sari/function/string.dart';
 
 import '../function/builder.dart';
@@ -143,75 +144,6 @@ class _ShowDialogEventState extends State<ShowDialogEvent> {
   final GlobalKey<TooltipState> _validateTooltipKey = GlobalKey<TooltipState>();
 
   List<Map<String, dynamic>> items = [];
-  List<Map<String, dynamic>> addons = [
-    {
-      'selected': false,
-      'name': 'Speaker',
-      'icon': Icons.speaker_outlined,
-      'withicon': Icons.speaker,
-      'color': Colors.orange.shade600,
-      'subname': '1 Jam',
-      'price': 15000,
-      'duration': null
-    }, {
-      'selected': false,
-      'name': 'Listrik',
-      'icon': Icons.bolt_outlined,
-      'withicon': Icons.bolt,
-      'color': Colors.blue.shade600,
-      'subname': '1 Jam',
-      'price': 30000,
-      'duration': null
-    }, {
-      'selected': false,
-      'name': 'Kursi Merah',
-      'icon': Icons.chair_outlined,
-      'withicon': Icons.chair,
-      'color': Colors.red.shade400,
-      'subname': '1 Kursi',
-      'price': 5000,
-      'duration': null
-    }, {
-      'selected': false,
-      'name': 'Kursi',
-      'icon': Icons.chair_alt_outlined,
-      'withicon': Icons.chair_alt_rounded,
-      'color': Colors.brown.shade600,
-      'subname': '1 Kursi',
-      'price': 2000,
-      'duration': null
-    }, {
-      'selected': false,
-      'name': 'Meja',
-      'icon': Icons.table_bar_outlined,
-      'withicon': Icons.table_bar,
-      'color': Colors.brown.shade600,
-      'subname': '1 Meja',
-      'price': 5000,
-      'duration': null
-    }
-  ];
-  
-  List<Map<String, dynamic>> locations = [
-    {
-      'name': 'Pendopo',
-      'image': 'pendopo_1.jpg',
-      'price': 5000
-    }, {
-      'name': 'Kolam',
-      'image': 'pool_1.jpg',
-      'size': null,
-      'price': 0
-    }, {
-      'name': 'Halaman Depan',
-      'image': 'frontyard_1.jpg',
-      'price': 0
-    }, {
-      'name': 'Gazebo',
-      'image': 'gazebo_2.jpg',
-      'price': 0
-    }, 
-  ];
 
   String selectedLocation = 'Pendopo';
 
