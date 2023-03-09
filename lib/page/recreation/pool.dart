@@ -794,7 +794,7 @@ class _PoolPageState extends State<PoolPage> {
                                         foregroundColor: MaterialStatePropertyAll(Colors.grey.shade100),
                                         padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 12, horizontal: 8)),
                                       ),
-                                      icon: const Icon(Icons.location_on),
+                                      icon: const Icon(Icons.explore),
                                       label: Text('Cari Lokasi',
                                         style: GoogleFonts.rubik(
                                           fontSize: 16,

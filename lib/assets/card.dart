@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:pentungan_sari/assets/icon.dart';
 
 import 'object.dart';
 
@@ -106,16 +107,7 @@ class CardEventDay extends StatelessWidget {
                               ),
                             ],
                           ),
-                          Wrap(
-                            spacing: 8,
-                            children: List.generate(event['addons'].length, (i) {
-                              return CircleAvatar(
-                                radius: 20,
-                                backgroundColor: event['addons_subcolor'][i],
-                                child: Icon(event['addons'][i], size: 24, color: event['addons_color'][i])
-                              );
-                            }),
-                          )
+                          IconAddons(event: event, size: 28, radius: 20)
                         ],
                       ),
                       const SizedBox(height: 16),
@@ -161,41 +153,67 @@ class CardEventDay extends StatelessWidget {
                                 )
                               ),
                               child: Padding(
-                                padding: const EdgeInsets.all(12),
+                                padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
-                                    Container(
-                                      padding: const EdgeInsets.fromLTRB(8, 4, 10, 4),
-                                      decoration: BoxDecoration(
-                                        color: Colors.grey.shade800,
-                                        borderRadius: BorderRadius.circular(8)
-                                      ),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        children: [
-                                          Padding(
-                                            padding: const EdgeInsets.only(top: 2),
-                                            child: Icon(Icons.location_on, color: Colors.blue.shade50, size: 20),
+                                    Row(
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.fromLTRB(8, 4, 10, 4),
+                                          decoration: BoxDecoration(
+                                            color: Colors.grey.shade800,
+                                            borderRadius: BorderRadius.circular(8)
                                           ),
-                                          const SizedBox(width: 4),
-                                          Column(
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
                                             crossAxisAlignment: CrossAxisAlignment.start,
+                                            mainAxisAlignment: MainAxisAlignment.start,
                                             children: [
-                                              Text('${event['location']}',
-                                                style: GoogleFonts.roboto(
-                                                  color: Colors.blue.shade50,
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.w500,
-                                                  decoration: TextDecoration.none
-                                                )
+                                              Padding(
+                                                padding: const EdgeInsets.only(top: 2),
+                                                child: Icon(Icons.location_on, color: Colors.blue.shade50, size: 20),
+                                              ),
+                                              const SizedBox(width: 4),
+                                              Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Text('${event['location']}',
+                                                    style: GoogleFonts.roboto(
+                                                      color: Colors.blue.shade50,
+                                                      fontSize: 16,
+                                                      fontWeight: FontWeight.w500,
+                                                      decoration: TextDecoration.none
+                                                    )
+                                                  ),
+                                                ],
                                               ),
                                             ],
                                           ),
-                                        ],
+                                        ),
+                                      ],
+                                    ),
+                                    if (duration > 3) ElevatedButton.icon(
+                                      style: ButtonStyle(
+                                        elevation: const MaterialStatePropertyAll(2),
+                                        shape: MaterialStatePropertyAll(
+                                          RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))
+                                        ),
+                                        iconSize: const MaterialStatePropertyAll(20),
+                                        iconColor: const MaterialStatePropertyAll(Colors.green),
+                                        backgroundColor: const MaterialStatePropertyAll(Colors.white),
+                                        foregroundColor: MaterialStatePropertyAll(Colors.grey.shade800)
+                                      ),
+                                      onPressed: () {}, 
+                                      icon: const Icon(Icons.explore), 
+                                      label: Text('Cari Lokasi', 
+                                        style: GoogleFonts.rubik(
+                                          height: 0,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500
+                                        )
                                       ),
                                     ),
                                   ],
@@ -306,5 +324,226 @@ class CardEventDayNext extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class CardEventWeekNormal extends StatelessWidget {
+  const CardEventWeekNormal({super.key, required this.title,
+    required this.animate, required this.today, required this.open,
+    required this.viewAnimate,
+    required this.event, 
+    required this.colors
+  });
+
+  final String title;
+  final bool animate, today, open;
+  final Function viewAnimate;
+
+  final Map<String, dynamic> event;
+  final Map<String, Color> colors;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      elevation: today ? 4 : 2,
+      color: open ? null : Colors.white60,
+      shadowColor: today ? Colors.black26 : Colors.black12,
+      borderRadius: BorderRadius.circular(8),
+      clipBehavior: Clip.antiAlias,
+      child: Stack(
+        children: [
+          Container(
+            decoration: today ? BoxDecoration(
+              color: colors['color']?.withOpacity(0.000005),
+              borderRadius: BorderRadius.circular(today ? 12 : 8),
+              border: Border.all(width: 0, color: Colors.transparent)
+            ) : null,
+            child: ListTileTheme(
+              tileColor: today ? colors['subcolor'] : null,
+              dense: true,
+              minVerticalPadding: 14,
+              child: ListTile(
+                onTap: () {
+                  Future.delayed(const Duration(milliseconds: 150)).whenComplete(() => viewAnimate('Hari'));
+                },
+                splashColor: colors['splashcolor'],
+                trailing: open
+                  ? TextButton.icon(
+                      onPressed: () {},
+                      style: ButtonStyle(
+                        iconSize: const MaterialStatePropertyAll(18),
+                        foregroundColor: MaterialStatePropertyAll(today ? colors['daycolor'] : Colors.green),
+                        overlayColor: MaterialStatePropertyAll(Colors.green.shade100)
+                      ),
+                      label: const Text('Pesan Tempat'),
+                      icon: const Icon(Icons.add_home_outlined)
+                    )
+                  : null,
+                contentPadding: EdgeInsets.fromLTRB(today ? 24 : 18, 0, 2, 0),
+                isThreeLine: false,
+                title: Text(title,
+                  style: GoogleFonts.signikaNegative(
+                    color: today 
+                      ? colors['daycolor']
+                      : open 
+                        ? Colors.grey
+                        : Colors.grey.shade400,
+                    letterSpacing: -0.25,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w500
+                  )
+                ),
+                subtitle: null,
+              ),
+            ),
+          ),
+          if (today) Positioned.fill(
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Container(
+                width: 5, 
+                height: double.infinity,
+                decoration: BoxDecoration(
+                  color: open ? colors['color']?.withOpacity(0.75) : Colors.grey.shade400,
+                  borderRadius: BorderRadius.circular(12)
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class CardEventWeek extends StatelessWidget {
+  const CardEventWeek({super.key, 
+    required this.animate, required this.today, required this.open, 
+    required this.showEventSheet, 
+    required this.event, required this.colors
+  });
+
+  final bool animate, today, open;
+  final Function showEventSheet;
+
+  final Map<String, dynamic> event;
+  final Map<String, Color> colors;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: List.generate(event['events'].length, (index) { 
+        List<dynamic> events = event['events'];
+        int duration = countEventDuration(events[index]['start'], events[index]['end']);
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 20),
+          child: Material(
+            elevation: 4,
+            color: open ? null : Colors.white60,
+            shadowColor: Colors.black26,
+            borderRadius: BorderRadius.circular(8),
+            clipBehavior: Clip.antiAlias,
+            child: Stack(
+              children: [
+                Align(
+                  alignment: Alignment.topCenter,
+                  child: Container(
+                    height: 4,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Colors.blue.shade400,
+                    ),
+                  ),
+                ),
+                Container(
+                  decoration: today ? BoxDecoration(
+                    color: colors['color']?.withOpacity(0.000005),
+                    borderRadius: BorderRadius.circular(today ? 12 : 8),
+                    border: Border.all(width: 0, color: Colors.transparent)
+                  ) : null,
+                  child: ListTileTheme(
+                    tileColor: today ? colors['subcolor'] : null,
+                    dense: true,
+                    minVerticalPadding: 14,
+                    child: ListTile(
+                      onTap: () {
+                        Future.delayed(const Duration(milliseconds: 150)).whenComplete(() {
+                          return showEventSheet(context, events[index], DateTime.now());
+                        });
+                      },
+                      splashColor: colors['splashcolor'],
+                      trailing: IconAddons(event: events[index]),
+                      contentPadding: EdgeInsets.fromLTRB(today ? 24 : 20, 0, 18, 0),
+                      isThreeLine: true,
+                      title: Text(events[index]['name'],
+                        style: GoogleFonts.signikaNegative(
+                          color: today 
+                            ? colors['daycolor']
+                            : open 
+                              ? Colors.grey.shade700
+                              : Colors.grey.shade400,
+                          letterSpacing: -0.25,
+                          fontSize: 22,
+                          fontWeight: FontWeight.w500
+                        )
+                      ),
+                      subtitle: Padding(
+                        padding: const EdgeInsets.only(bottom: 4, top: 4),
+                        child: IntrinsicHeight(
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              const Padding(
+                                padding: EdgeInsets.only(top: 3),
+                                child: Icon(Icons.schedule, color: Colors.grey, size: 18),
+                              ),
+                              const SizedBox(width: 6),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(events[index]['time'],
+                                    style: GoogleFonts.roboto(
+                                      color: Colors.grey,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500
+                                    )
+                                  ),
+                                ],
+                              ),
+                              const VerticalDivider(indent: 2, endIndent: 2),
+                              Text('$duration Jam',
+                                style: GoogleFonts.roboto(
+                                  color: Colors.grey,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500
+                                )
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                if (today) Positioned.fill(
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Container(
+                      width: 5, 
+                      height: double.infinity,
+                      decoration: BoxDecoration(
+                        color: open ? colors['color']?.withOpacity(0.75) : Colors.grey.shade400,
+                        borderRadius: BorderRadius.circular(12)
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    ));
   }
 }

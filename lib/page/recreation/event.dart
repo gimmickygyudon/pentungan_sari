@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:pentungan_sari/assets/card.dart';
 import 'package:pentungan_sari/assets/dialog.dart';
+import 'package:pentungan_sari/assets/icon.dart';
 
 import '../../assets/object.dart';
 import '../../function/builder.dart';
@@ -84,33 +85,47 @@ class _EventState extends State<Event> {
         'name': 'Rapat Posyandu',
         'time': '08.30 - 11.30',
         'location': 'Pendopo',
-        'addons': [ Icons.speaker ],
-        'addons_color': [ Colors.orange.shade600 ],
-        'addons_subcolor': [ Colors.orange.shade50 ]
+        'addons': [ 
+          {
+            'name': 'Listrik',
+            'price': 30000,
+            'duration': 3,
+          }, {
+            'name': 'Speaker',
+            'price': 15000,
+            'duration': 3,
+          }
+        ]
       },
       {
-        'start': 6.00,
+        'start': 6.30,
         'end': 9.30,
         'date': (widget.now.day + 1).toString(),
         'day': DateFormat('EEEE', 'id').format(DateTime(widget.now.day + 1)),
         'name': 'Senam Pagi',
         'time': '06.30 - 09.30',
         'location': 'Halaman Depan',
-        'addons': [ Icons.speaker ],
-        'addons_color': [ Colors.orange.shade600 ],
-        'addons_subcolor': [ Colors.orange.shade50 ]
+        'addons': [ 
+          {
+            'name': 'Listrik',
+            'price': 30000,
+            'duration': 3,
+          }, {
+            'name': 'Speaker',
+            'price': 15000,
+            'duration': 3,
+          } 
+        ]
       },
       {
         'start': 13.00,
         'end': 15.30,
         'date': (widget.now.day + 1).toString(),
         'day': DateFormat('EEEE', 'id').format(DateTime(widget.now.day + 1)),
-        'name': 'Lomba Renang SD',
+        'name': 'Lomba Renang Al-Akbar',
         'time': '13.30 - 15.30',
         'location': 'Kolam',
-        'addons': [ Icons.speaker ],
-        'addons_color': [ Colors.orange.shade600 ],
-        'addons_subcolor': [ Colors.orange.shade50 ]
+        'addons': []
       }
     ];
 
@@ -122,11 +137,7 @@ class _EventState extends State<Event> {
       final list = { 
         'date': date.toString(),
         'day': DateFormat('EEEE', 'id').format(DateTime(widget.now.year, widget.now.month, date)),
-        'name': 'Hari Biasa',
-        'location': null,
-        'time': null,
-        'addons': null,
-        'event': []
+        'events': []
       };
 
       date++;
@@ -137,7 +148,7 @@ class _EventState extends State<Event> {
       int i = 0;
       for (var dummyevent in dummyevents) { 
        if (event['date'] == dummyevent['date']) {
-          event['event'].insert(i, dummyevent);
+          event['events'].insert(i, dummyevent);
         }
         i++;
       }
@@ -339,9 +350,9 @@ class _EventState extends State<Event> {
                             case 'Hari':
                               return EventThisDay(events: dummyevents, animate: animates[0], location: location, changeLocation: changeLocation);
                             case 'Bulan':
-                              return EventThisWeek(events: events, dummyevents: dummyevents, now: widget.now, animate: animates[1], viewAnimate: viewAnimate);
+                              return EventThisWeek(events: events, now: widget.now, animate: animates[1], viewAnimate: viewAnimate);
                             default:
-                              return EventThisWeek(events: events, dummyevents: dummyevents, now: widget.now, animate: animates[1], viewAnimate: viewAnimate);
+                              return EventThisWeek(events: events, now: widget.now, animate: animates[1], viewAnimate: viewAnimate);
                           }
                         }()) 
                       ),
@@ -583,13 +594,12 @@ class EventThisWeek extends StatelessWidget {
   const EventThisWeek({
     super.key, 
     required this.events, 
-    required this.dummyevents, 
     required this.now, 
     required this.animate, 
     required this.viewAnimate
   });
 
-  final List<Map<String, dynamic>> events, dummyevents;
+  final List<Map<String, dynamic>> events;
   final DateTime now;
   final bool animate;
 
@@ -602,33 +612,43 @@ class EventThisWeek extends StatelessWidget {
     return SliverList.builder(
       itemCount: 7,
       itemBuilder: (context, index) {
-        bool today, noevent;
-        Color color, subcolor, splashcolor, daycolor, datecolor;
+        bool today, noevent = true;
+        Map<String, Color> colors;
 
-        if (events[index]['name'] == 'Hari Biasa') {
-          color = Colors.green;
-          subcolor = Colors.green.shade50;
-          splashcolor = Colors.green.shade100;
-          daycolor = Colors.green.shade400;
-          datecolor = Colors.green.shade600;
-        } else {
-          color = Colors.blue;
-          subcolor = Colors.blue.shade50;
-          splashcolor = Colors.blue.shade100;
-          daycolor = Colors.blue.shade400;
-          datecolor = Colors.blue.shade600;
-        }
 
         if (events[index]['date'] == now.day.toString()) { 
           today = true; open = true; 
         } else { 
           today = false; 
         }
-        events[index]['name'] == 'Hari Biasa' ? noevent = true : noevent = false;
+
+        if (events[index]['events'].isEmpty) {
+          noevent = true;
+        } else {
+          noevent = false;
+        }
+
+        if (noevent) {
+          colors = {
+            'color': Colors.green,
+            'subcolor': Colors.green.shade50,
+            'splashcolor': Colors.green.shade100,
+            'daycolor': Colors.green.shade400,
+            'datecolor': Colors.green.shade600,
+          };
+        } else {
+          colors = {
+            'color': Colors.blue,
+            'subcolor': Colors.blue.shade50,
+            'splashcolor': Colors.blue.shade100,
+            'daycolor': Colors.blue.shade400,
+            'datecolor': Colors.blue.shade600,
+          };
+        }
 
         duration += 100;
         return AnimatedSlide(
-          offset: Offset(0, animate ? 0 : 2),
+          offset: Offset(0, animate ? 0 : noevent ? 2 : 1),
           curve: Curves.easeOutCubic,
           duration: Duration(milliseconds: duration),
           child: AnimatedOpacity(
@@ -636,6 +656,7 @@ class EventThisWeek extends StatelessWidget {
             curve: Curves.easeInOutCubic,
             duration: Duration(milliseconds: duration - 50),
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -646,7 +667,7 @@ class EventThisWeek extends StatelessWidget {
                           Text(today ? events[index]['day'] : events[index]['day'],
                             style: today 
                             ? GoogleFonts.rubik(
-                              color: daycolor,
+                              color: colors['daycolor'],
                               letterSpacing: 0.25,
                               fontSize: 18,
                               fontWeight: FontWeight.w600
@@ -661,7 +682,7 @@ class EventThisWeek extends StatelessWidget {
                           Text(events[index]['date'].length == 1 ? '0${events[index]['date']}' : events[index]['date'],
                             style: GoogleFonts.rubik(
                               color: today 
-                                ? datecolor 
+                                ? colors['datecolor']
                                 : open ? Colors.grey.shade600 : Colors.grey,
                               fontSize: 24,
                               fontWeight: FontWeight.w600
@@ -670,11 +691,11 @@ class EventThisWeek extends StatelessWidget {
                           if (today) Padding(
                             padding: const EdgeInsets.only(top: 2),
                             child: Chip(
-                              backgroundColor: daycolor,
+                              backgroundColor: colors['daycolor'],
                               elevation: 4,
                               shadowColor: Colors.black38,
                               label: const Text('Hari Ini'),
-                              labelStyle: GoogleFonts.varelaRound(fontWeight: FontWeight.w600, color: subcolor),
+                              labelStyle: GoogleFonts.varelaRound(fontWeight: FontWeight.w600, color: colors['subcolor']),
                               padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
                               side: BorderSide.none,
                             ),
@@ -687,136 +708,11 @@ class EventThisWeek extends StatelessWidget {
                       flex: 4,
                       child: Column(
                         children: [
-                          Material(
-                            elevation: noevent && !today ? 2 : 4,
-                            color: open ? null : Colors.white60,
-                            shadowColor: noevent && !today ? Colors.black12 : Colors.black26,
-                            borderRadius: BorderRadius.circular(8),
-                            clipBehavior: Clip.antiAlias,
-                            child: Stack(
-                              children: [
-                                if(!noevent) Align(
-                                  alignment: Alignment.topCenter,
-                                  child: Container(
-                                    height: 4,
-                                    width: double.infinity,
-                                    decoration: BoxDecoration(
-                                      color: Colors.blue.shade400,
-                                    ),
-                                  ),
-                                ),
-                                Container(
-                                  decoration: today ? BoxDecoration(
-                                    color: color.withOpacity(0.000005),
-                                    borderRadius: BorderRadius.circular(today ? 12 : 8),
-                                    border: Border.all(width: 0, color: Colors.transparent)
-                                  ) : null,
-                                  child: ListTileTheme(
-                                    tileColor: today ? subcolor : null,
-                                    dense: true,
-                                    minVerticalPadding: 14,
-                                    child: ListTile(
-                                      onTap: () {
-                                        if (!noevent) {
-                                          Future.delayed(const Duration(milliseconds: 150)).whenComplete(() {
-                                            return showEventSheet(context, events[index], now);
-                                          });
-                                        }
-                                        if (noevent) Future.delayed(const Duration(milliseconds: 150)).whenComplete(() => viewAnimate('Hari'));
-                                      },
-                                      splashColor: splashcolor,
-                                      trailing: events[index]['addons'] != null 
-                                      ? Wrap(
-                                        spacing: 8,
-                                        children: List.generate(events[index]['addons'].length, (i) {
-                                          return CircleAvatar(
-                                            radius: 16,
-                                            backgroundColor: events[index]['addons_subcolor'][i],
-                                            child: Icon(events[index]['addons'][i], size: 20, color: events[index]['addons_color'][i])
-                                          );
-                                        }),
-                                      ) : open
-                                        ? TextButton.icon(
-                                            onPressed: () {},
-                                            style: ButtonStyle(
-                                              iconSize: const MaterialStatePropertyAll(18),
-                                              foregroundColor: MaterialStatePropertyAll(today ? daycolor : Colors.green),
-                                              overlayColor: MaterialStatePropertyAll(Colors.green.shade100)
-                                            ),
-                                            label: const Text('Pesan Tempat'),
-                                            icon: const Icon(Icons.add_home_outlined)
-                                          )
-                                        : null,
-                                      contentPadding: EdgeInsets.fromLTRB(today ? 24 : noevent ? 18 : 20, 0, noevent ? 2 : 18, 0),
-                                      isThreeLine: events[index]['time'] != null ? true : false,
-                                      title: Text(events[index]['name'],
-                                        style: GoogleFonts.signikaNegative(
-                                          color: today 
-                                            ? daycolor
-                                            : open 
-                                              ? noevent
-                                                ? Colors.grey
-                                                : Colors.grey.shade700
-                                              : Colors.grey.shade400,
-                                          letterSpacing: -0.25,
-                                          fontSize: noevent ? 20 : 22,
-                                          fontWeight: FontWeight.w500
-                                        )
-                                      ),
-                                      subtitle: events[index]['time'] != null ? Padding(
-                                        padding: const EdgeInsets.only(bottom: 4, top: 4),
-                                        child: IntrinsicHeight(
-                                          child: Row(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            mainAxisAlignment: MainAxisAlignment.start,
-                                            children: [
-                                              const Padding(
-                                                padding: EdgeInsets.only(top: 3),
-                                                child: Icon(Icons.schedule, color: Colors.grey, size: 18),
-                                              ),
-                                              const SizedBox(width: 6),
-                                              Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(events[index]['time'],
-                                                    style: GoogleFonts.roboto(
-                                                      color: Colors.grey,
-                                                      fontSize: 16,
-                                                      fontWeight: FontWeight.w500
-                                                    )
-                                                  ),
-                                                ],
-                                              ),
-                                              const VerticalDivider(indent: 2, endIndent: 2),
-                                              Text('4 Jam',
-                                                style: GoogleFonts.roboto(
-                                                  color: Colors.grey,
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.w500
-                                                )
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ) : null,
-                                    ),
-                                  ),
-                                ),
-                                if (today) Positioned.fill(
-                                  child: Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Container(
-                                      width: 5, 
-                                      height: double.infinity,
-                                      decoration: BoxDecoration(
-                                        color: open ? color.withOpacity(0.75) : Colors.grey.shade400,
-                                        borderRadius: BorderRadius.circular(12)
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
+                          if (noevent) CardEventWeekNormal(title: 'Hari Biasa', 
+                            animate: animate, today: today, open: open, viewAnimate: viewAnimate, event: events[index], colors: colors
+                          ), 
+                          if (noevent == false) CardEventWeek(animate: animate, 
+                            today: today, open: open, showEventSheet: showEventSheet, event: events[index], colors: colors
                           ),
                           if (today) Padding(
                             padding: const EdgeInsets.only(top: 16),
@@ -870,7 +766,7 @@ class EventThisWeek extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 42),
+                SizedBox(height: noevent ? 42 : 21),
               ],
             ),
           ),
@@ -915,7 +811,7 @@ class EventSheet extends StatelessWidget {
             children: [
               Container(
                 color: Colors.blue,
-                height: 6,
+                height: 7,
                 width: double.infinity,
               ),
               Padding(
@@ -952,7 +848,7 @@ class EventSheet extends StatelessWidget {
                           children: <Widget>[
                             Text(event['name'],
                               style: GoogleFonts.signikaNegative(
-                                color: Colors.grey.shade700,
+                                color: Colors.grey.shade800,
                                 height: 0,
                                 fontSize: 24,
                                 fontWeight: FontWeight.w500
@@ -986,16 +882,7 @@ class EventSheet extends StatelessWidget {
                         ),
                       ],
                     ),
-                    Wrap(
-                      spacing: 8,
-                      children: List.generate(event['addons'].length, (i) {
-                        return CircleAvatar(
-                          radius: 24,
-                          backgroundColor: event['addons_subcolor'][i],
-                          child: Icon(event['addons'][i], size: 28, color: event['addons_color'][i])
-                        );
-                      }),
-                    )
+                    IconAddons(event: event, size: 28, radius: 24)
                   ],
                 ),
               ),
@@ -1128,7 +1015,7 @@ class EventSheet extends StatelessWidget {
                       backgroundColor: MaterialStatePropertyAll(Colors.lightGreen),
                       padding: MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 12, horizontal: 8)),
                     ),
-                    icon: Icon(Icons.location_on, color: Colors.grey.shade100),
+                    icon: Icon(Icons.explore, color: Colors.grey.shade100),
                     label: Text('Cari Lokasi',
                       style: GoogleFonts.rubik(
                         color: Colors.grey.shade100,

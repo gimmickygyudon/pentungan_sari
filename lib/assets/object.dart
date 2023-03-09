@@ -7,6 +7,7 @@ List<Map<String, dynamic>> addons = [
     'icon': Icons.speaker_outlined,
     'withicon': Icons.speaker,
     'color': Colors.orange.shade600,
+    'subcolor': Colors.orange.shade50,
     'subname': '1 Jam',
     'price': 15000,
     'duration': null
@@ -16,6 +17,7 @@ List<Map<String, dynamic>> addons = [
     'icon': Icons.bolt_outlined,
     'withicon': Icons.bolt,
     'color': Colors.blue.shade600,
+    'subcolor': Colors.blue.shade50,
     'subname': '1 Jam',
     'price': 30000,
     'duration': null
@@ -25,6 +27,7 @@ List<Map<String, dynamic>> addons = [
     'icon': Icons.chair_outlined,
     'withicon': Icons.chair,
     'color': Colors.red.shade400,
+    'subcolor': Colors.red.shade50,
     'subname': '1 Kursi',
     'price': 5000,
     'duration': null
@@ -34,6 +37,7 @@ List<Map<String, dynamic>> addons = [
     'icon': Icons.chair_alt_outlined,
     'withicon': Icons.chair_alt_rounded,
     'color': Colors.brown.shade600,
+    'subcolor': Colors.brown.shade50,
     'subname': '1 Kursi',
     'price': 2000,
     'duration': null
@@ -43,6 +47,7 @@ List<Map<String, dynamic>> addons = [
     'icon': Icons.table_bar_outlined,
     'withicon': Icons.table_bar,
     'color': Colors.brown.shade600,
+    'subcolor': Colors.brown.shade50,
     'subname': '1 Meja',
     'price': 5000,
     'duration': null
@@ -75,23 +80,22 @@ List<Map<String, dynamic>> locations = [
 
 String findLocationImage(Map<String, dynamic> event) {
   String string = 'images/pendopo_1.jpg';
-  for (var location in locations) { 
-    if (location['name'] == event['location']) {
-      string = 'images/${location['image']}';
-    }
-  }
 
+  string = 'images/${locations.singleWhere((element) => element['name'] == event['location'])['image']}';
   return string;
 }
 
-IconData findLocationIcon(Map<String, dynamic> event) {
-  IconData icon = Icons.error;
-  for (var location in locations) { 
-    if (location['name'] == event['location']) {
-      icon = location['icon'];
-    }
-  }
+Map<String, dynamic> getAddonsElement(String name) {
+  Map<String, dynamic> element = {};
+  
+  element = addons.singleWhere((element) => element['name'] == name);
+  return element;
+}
 
+IconData getLocationIcon(Map<String, dynamic> event) {
+  IconData icon = Icons.error;
+
+  icon = locations.singleWhere((element) => element['name'] == event['location'])['icon'];
   return icon;
 }
 
