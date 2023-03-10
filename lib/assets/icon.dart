@@ -23,7 +23,7 @@ class IconAddons extends StatelessWidget {
           triggerMode: TooltipTriggerMode.tap,
           preferBelow: false,
           textStyle: GoogleFonts.rubik(
-            fontSize: 16,
+            fontSize: radius,
             color: addon['color']
           ),
           decoration: BoxDecoration(

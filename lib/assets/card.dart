@@ -34,9 +34,7 @@ class CardEventDay extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         splashColor: Colors.blue.shade100,
-        onTap: () {
-          Timer(const Duration(milliseconds: 150), () => showEventSheet(context, event, DateTime.now()));
-        },
+        onTap: () => Timer(const Duration(milliseconds: 50), () => showEventSheet(context, event, DateTime.now())),
         child: SizedBox(
           height: 70 * duration,
           child: Column(
@@ -117,7 +115,7 @@ class CardEventDay extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           const Padding(
-                            padding: EdgeInsets.only(top: 2),
+                            padding: EdgeInsets.only(top: 1),
                             child: Icon(Icons.location_on, color: Colors.blue, size: 20),
                           ),
                           const SizedBox(width: 4),
@@ -259,7 +257,7 @@ class CardEventDayNext extends StatelessWidget {
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: () => changeLocation(event['location']),
+        onTap: () => Future.delayed(const Duration(milliseconds: 100)).whenComplete(() => changeLocation(event['location'])),
         splashColor: Colors.blue.shade50,
         overlayColor: MaterialStatePropertyAll(Colors.blue.shade100),
         child: Padding(
@@ -363,9 +361,7 @@ class CardEventWeekNormal extends StatelessWidget {
               dense: true,
               minVerticalPadding: 14,
               child: ListTile(
-                onTap: () {
-                  Future.delayed(const Duration(milliseconds: 150)).whenComplete(() => viewAnimate('Hari'));
-                },
+                onTap: () => Future.delayed(const Duration(milliseconds: 100)).whenComplete(() => viewAnimate('Hari')),
                 splashColor: colors['splashcolor'],
                 trailing: open
                   ? TextButton.icon(
@@ -467,12 +463,15 @@ class CardEventWeek extends StatelessWidget {
                     minVerticalPadding: 14,
                     child: ListTile(
                       onTap: () {
-                        Future.delayed(const Duration(milliseconds: 150)).whenComplete(() {
+                        Future.delayed(const Duration(milliseconds: 100)).whenComplete(() {
                           return showEventSheet(context, events[index], DateTime.now());
                         });
                       },
                       splashColor: colors['splashcolor'],
-                      trailing: IconAddons(event: events[index]),
+                      trailing: Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: IconAddons(event: events[index]),
+                      ),
                       contentPadding: EdgeInsets.fromLTRB(today ? 24 : 20, 0, 18, 0),
                       isThreeLine: true,
                       title: Text(events[index]['name'],
@@ -488,21 +487,35 @@ class CardEventWeek extends StatelessWidget {
                         )
                       ),
                       subtitle: Padding(
-                        padding: const EdgeInsets.only(bottom: 4, top: 4),
-                        child: IntrinsicHeight(
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              const Padding(
-                                padding: EdgeInsets.only(top: 3),
-                                child: Icon(Icons.schedule, color: Colors.grey, size: 18),
-                              ),
-                              const SizedBox(width: 6),
-                              Column(
+                        padding: const EdgeInsets.only(bottom: 4),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            IntrinsicHeight(
+                              child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
-                                  Text(events[index]['time'],
+                                  const Padding(
+                                    padding: EdgeInsets.only(top: 3),
+                                    child: Icon(Icons.schedule, color: Colors.grey, size: 18),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(events[index]['time'],
+                                        style: GoogleFonts.roboto(
+                                          color: Colors.grey,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500
+                                        )
+                                      ),
+                                    ],
+                                  ),
+                                  const VerticalDivider(indent: 2, endIndent: 2),
+                                  Text('$duration Jam',
                                     style: GoogleFonts.roboto(
                                       color: Colors.grey,
                                       fontSize: 16,
@@ -511,16 +524,32 @@ class CardEventWeek extends StatelessWidget {
                                   ),
                                 ],
                               ),
-                              const VerticalDivider(indent: 2, endIndent: 2),
-                              Text('$duration Jam',
-                                style: GoogleFonts.roboto(
-                                  color: Colors.grey,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500
-                                )
-                              ),
-                            ],
-                          ),
+                            ),
+                            const SizedBox(height: 16),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Padding(
+                                  padding: EdgeInsets.only(top: 0),
+                                  child: Icon(Icons.location_on, color: Colors.blue, size: 20),
+                                ),
+                                const SizedBox(width: 4),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('${events[index]['location']}',
+                                      style: GoogleFonts.roboto(
+                                        color: Colors.blue,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                        decoration: TextDecoration.none
+                                      )
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
                     ),

@@ -28,7 +28,7 @@ class Event extends StatefulWidget {
   State<Event> createState() => _EventState();
 }
 
-class _EventState extends State<Event> {
+class _EventState extends State<Event> with SingleTickerProviderStateMixin {
   DateTime getDate(DateTime d) => DateTime(d.year, d.month, d.day);
 
   final LinearGradient govGradient = LinearGradient(
@@ -50,6 +50,9 @@ class _EventState extends State<Event> {
   late String view, location;
   late List<bool> animates;
   late bool animate;
+
+  late Animation<Color?> locationAnimation;
+  late AnimationController locationController;
 
   Map<String, IconData> weekdays = {
     'Hari': Icons.sunny, 
@@ -162,11 +165,19 @@ class _EventState extends State<Event> {
       animate = true;
       animates[viewIndex(view)] = true;
     }));
+
+    locationController = AnimationController(
+      duration: const Duration(milliseconds: 400),
+      reverseDuration: const Duration(milliseconds: 600),
+      vsync: this
+    );
+    locationAnimation = ColorTween(begin: Colors.grey.shade600, end: Colors.blue).animate(locationController);
   }
 
   @override
   void dispose() {
     animates.setAll(0, List.filled(3, false));
+    locationController.dispose();
     super.dispose();
   }
 
@@ -176,22 +187,24 @@ class _EventState extends State<Event> {
       widget.changeView(value);
       view = value;
 
-      setState(() => animates.setAll(0, List.filled(3, false)));
-      WidgetsBinding.instance.addPostFrameCallback((_) =>
-        Timer(const Duration(milliseconds: 200), () => setState(() => 
-          view = value
-        ))
-      );
-      WidgetsBinding.instance.addPostFrameCallback((_) => 
-        Timer(const Duration(milliseconds: 300), () => 
-        setState(() => 
-          animates[viewIndex(value)] = true
-        ))
-      );
+      setState(() {
+        animates.setAll(0, List.filled(3, false));
+        view = value;
+      });
+      WidgetsBinding.instance.addPostFrameCallback((_) => setState(() => animates[viewIndex(value)] = true ));
     }
   }
 
-  void changeLocation(String value) => setState(() => location = value);
+  void changeLocation(String value) => setState(() {
+    location = value;
+    if (locationController.isAnimating) {
+      locationController.stop(canceled: true);
+      locationController.forward().whenComplete(() => locationController.reverse());
+    } 
+    else {
+      locationController.forward().whenComplete(() => locationController.reverse());
+    }
+  });
 
   int viewIndex(String view) {
     switch (view) {
@@ -291,36 +304,56 @@ class _EventState extends State<Event> {
                                       ),
                                     ),
                                     const SizedBox(width: 8),
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.grey.shade200,
-                                        borderRadius: BorderRadius.circular(12)
-                                      ),
-                                      child: DropdownButton(
-                                        value: location,
-                                        onChanged: (value) => changeLocation(value as String),
-                                        underline: const SizedBox(),
-                                        isDense: true,
-                                        style: GoogleFonts.varelaRound(
-                                          color: Colors.grey.shade600,
-                                          fontSize: 20,
-                                          letterSpacing: 0.5,
-                                          fontWeight: FontWeight.w600
+                                    AnimatedSwitcher(
+                                      duration: const Duration(milliseconds: 600),
+                                      switchInCurve: Curves.easeInOutCubic,
+                                      switchOutCurve: Curves.easeInOutCubic,
+                                      transitionBuilder: (child, animation) {
+                                        return SlideTransition(
+                                          position: Tween<Offset>(
+                                            begin: const Offset(0, -1),
+                                            end: const Offset(0, 0),
+                                          ).animate(animation), 
+                                          child: FadeTransition(
+                                            opacity: animation,
+                                            child: child
+                                          )
+                                        );
+                                      },
+                                      child: view == 'Hari' ? AnimatedBuilder(
+                                        animation: locationAnimation,
+                                        builder: (context, child) => Container(
+                                          decoration: BoxDecoration(
+                                            color: locationAnimation.value?.withOpacity(0.1),
+                                            borderRadius: BorderRadius.circular(12)
+                                          ),
+                                          child: DropdownButton(
+                                            value: location,
+                                            onChanged: (value) => changeLocation(value as String),
+                                            underline: const SizedBox(),
+                                            isDense: true,
+                                            style: GoogleFonts.varelaRound(
+                                              color: locationAnimation.value,
+                                              fontSize: 20,
+                                              letterSpacing: 0.5,
+                                              fontWeight: FontWeight.w600
+                                            ),
+                                            icon: Padding(
+                                              padding: const EdgeInsets.only(left: 12),
+                                              child: Icon(Icons.location_on, color: locationAnimation.value),
+                                            ),
+                                            iconSize: 24,
+                                            borderRadius: BorderRadius.circular(12),
+                                            padding: const EdgeInsets.fromLTRB(12, 8, 4, 8),
+                                            items: locations.map<DropdownMenuItem<String>>((element) {
+                                              return DropdownMenuItem<String>(
+                                                value: element['name'],
+                                                child: Text(element['name'])
+                                              );
+                                            }).toList()
+                                          ),
                                         ),
-                                        icon: Padding(
-                                          padding: const EdgeInsets.only(left: 12),
-                                          child: Icon(Icons.location_on, color: Colors.grey.shade600),
-                                        ),
-                                        iconSize: 24,
-                                        borderRadius: BorderRadius.circular(12),
-                                        padding: const EdgeInsets.fromLTRB(12, 8, 4, 8),
-                                        items: locations.map<DropdownMenuItem<String>>((element) {
-                                          return DropdownMenuItem<String>(
-                                            value: element['name'],
-                                            child: Text(element['name'])
-                                          );
-                                        }).toList()
-                                      ),
+                                      ) : null,
                                     )
                                   ],
                                 ),
@@ -656,6 +689,7 @@ class EventThisWeek extends StatelessWidget {
             curve: Curves.easeInOutCubic,
             duration: Duration(milliseconds: duration - 50),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
                 Row(
@@ -699,7 +733,12 @@ class EventThisWeek extends StatelessWidget {
                               padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
                               side: BorderSide.none,
                             ),
-                          )
+                          ),
+                          if (!noevent) Container(
+                            margin: EdgeInsets.only(top: today ? 0 : 4, bottom: 10),
+                            width: 1, height: events[index]['events'].length.toDouble() * 132,
+                            color: Colors.grey.shade300,
+                          ),
                         ],
                       ),
                     ),
@@ -766,7 +805,12 @@ class EventThisWeek extends StatelessWidget {
                     ),
                   ],
                 ),
-                SizedBox(height: noevent ? 42 : 21),
+                if (noevent && index != 6) Container(
+                  margin: EdgeInsets.only(left: 42, top: today ? 0 : 4, bottom: 10),
+                  width: 1, height: 34,
+                  color: Colors.grey.shade300,
+                ),
+                if (index == 6) SizedBox(height: noevent ? 42 : 21),
               ],
             ),
           ),
@@ -779,7 +823,14 @@ class EventThisWeek extends StatelessWidget {
 void showEventSheet(BuildContext context, Map<String, dynamic> event, DateTime now) {
   showModalBottomSheet<void>(
     barrierColor: Colors.black38,
+    backgroundColor: Colors.transparent,
+    elevation: 0,
     context: context,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.only(
+        topLeft: Radius.circular(16), topRight: Radius.circular(16)
+      )
+    ),
     clipBehavior: Clip.antiAliasWithSaveLayer,
     isScrollControlled: true,
     builder: (BuildContext context) {
@@ -790,7 +841,7 @@ void showEventSheet(BuildContext context, Map<String, dynamic> event, DateTime n
   );
 }
 
-class EventSheet extends StatelessWidget {
+class EventSheet extends StatefulWidget {
   const EventSheet({
     super.key,
     required this.event, 
@@ -799,236 +850,281 @@ class EventSheet extends StatelessWidget {
   final Map<String, dynamic> event;
 
   @override
-  Widget build(BuildContext context) {
-    String image = findLocationImage(event);
-    int duration = countEventDuration(event['start'], event['end']);
+  State<EventSheet> createState() => _EventSheetState();
+}
 
-    return Container(
-      color: Colors.white,
-      child: Wrap(
-        children: [
-          Column(
+class _EventSheetState extends State<EventSheet> {
+  bool animate = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => setState(() => animate = true));
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    String image = findLocationImage(widget.event);
+    int duration = countEventDuration(widget.event['start'], widget.event['end']);
+
+    return AnimatedSize(
+      alignment: Alignment.topCenter,
+      curve: Curves.easeOutCubic,
+      duration: const Duration(milliseconds: 600),
+      child: SizedBox(
+        height: animate ? null : 0,
+        child: Container(
+          color: Colors.white,
+          child: Wrap(
             children: [
-              Container(
-                color: Colors.blue,
-                height: 7,
-                width: double.infinity,
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 12),
-                child: Container(
-                  height: 5,
-                  width: 45,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
-                    borderRadius: BorderRadius.circular(8)
+              Column(
+                children: [
+                  Container(
+                    color: Colors.blue,
+                    height: 7,
+                    width: double.infinity,
                   ),
-                ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 12),
+                    child: Container(
+                      height: 5,
+                      width: 45,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade300,
+                        borderRadius: BorderRadius.circular(8)
+                      ),
+                    ),
+                  ),
+                  AnimatedSlide(
+                    offset: Offset(0, animate ? 0 : 0.5),
+                    curve: Curves.easeOutCubic,
+                    duration: const Duration(milliseconds: 600),
+                    child: AnimatedOpacity(
+                      opacity: animate ? 1 : 0,
+                      curve: Curves.easeOutCubic,
+                      duration: const Duration(milliseconds: 1600),
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Visibility(
+                                      visible: false,
+                                      child: CircleAvatar(
+                                        backgroundColor: Colors.blue.shade50,
+                                        foregroundColor: Colors.blue,
+                                        radius: 30,
+                                        child: const Icon(Icons.foundation, size: 34)
+                                      ),
+                                    ),
+                                    // const SizedBox(width: 24),
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        Text(widget.event['name'],
+                                          style: GoogleFonts.signikaNegative(
+                                            color: Colors.grey.shade800,
+                                            height: 0,
+                                            fontSize: 26,
+                                            fontWeight: FontWeight.w500
+                                          )
+                                        ),
+                                        const SizedBox(height: 4),
+                                        IntrinsicHeight(
+                                          child: Row(
+                                            children: [
+                                              const Icon(Icons.schedule, color: Colors.grey, size: 20),
+                                              const SizedBox(width: 8),
+                                              Text(widget.event['time'],
+                                                style: GoogleFonts.roboto(
+                                                  color: Colors.grey,
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.w500
+                                                )
+                                              ),
+                                              const VerticalDivider(width: 20, indent: 4, endIndent: 4),
+                                              Text('$duration Jam',
+                                                style: GoogleFonts.roboto(
+                                                  color: Colors.grey,
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.w500
+                                                )
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                IconAddons(event: widget.event, size: 28, radius: 24)
+                              ],
+                            ),
+                          ),
+                          Divider(indent: 32, endIndent: 32, thickness: 2, color: Colors.grey.shade200),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(Icons.event, size: 28, color: Colors.grey.shade700),
+                                    const SizedBox(width: 16),
+                                    Text(DateFormat('EEEE, dd MMMM yyyy', 'id').format(DateTime.now()),
+                                      style: GoogleFonts.varelaRound(
+                                        color: Colors.grey.shade700,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w600
+                                      ),
+                                    )
+                                  ],
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.only(left: 6),
+                                  height: 42,
+                                  child: VerticalDivider(
+                                    color: Colors.grey.shade300,
+                                    thickness: 1, indent: 6, endIndent: 6
+                                  )
+                                ),
+                                Row(
+                                  children: [
+                                    Icon(Icons.schedule, size: 28, color: Colors.grey.shade700),
+                                    const SizedBox(width: 16),
+                                    Text(widget.event['time'],
+                                      style: GoogleFonts.varelaRound(
+                                        color: Colors.grey.shade700,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w600
+                                      ),
+                                    )
+                                  ],
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.only(left: 6),
+                                  height: 42,
+                                  child: VerticalDivider(
+                                    color: Colors.grey.shade300,
+                                    thickness: 1, indent: 6, endIndent: 6
+                                  )
+                                ),
+                                Row(
+                                  children: [
+                                    Icon(Icons.location_on, size: 28, color: Colors.grey.shade700),
+                                    const SizedBox(width: 16),
+                                    Text('${widget.event['location']}, Pentungan Sari',
+                                      style: GoogleFonts.varelaRound(
+                                        color: Colors.grey.shade700,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w600
+                                      ),
+                                    )
+                                  ],
+                                ),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.only(left: 6),
+                                      height: 220,
+                                      child: VerticalDivider(
+                                        color: Colors.grey.shade300,
+                                        thickness: 1, indent: 6, endIndent: 6
+                                      )
+                                    ),
+                                    Expanded(
+                                      child: Padding(
+                                        padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+                                        child: AnimatedScale(
+                                          scale: animate ? 1 : 0,
+                                          duration: const Duration(milliseconds: 600),
+                                          curve: Curves.easeOutCubic,
+                                          child: Container(
+                                            clipBehavior: Clip.antiAlias,
+                                            height: 200,
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(12),
+                                              image: DecorationImage(
+                                                fit: BoxFit.cover,
+                                                image: AssetImage(image)
+                                              )
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                ],
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+                padding: const EdgeInsets.fromLTRB(32, 0, 32, 24),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisSize: MainAxisSize.max,
                   children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Visibility(
-                          visible: false,
-                          child: CircleAvatar(
-                            backgroundColor: Colors.blue.shade50,
-                            foregroundColor: Colors.blue,
-                            radius: 30,
-                            child: const Icon(Icons.foundation, size: 34)
-                          ),
+                    Expanded(
+                      flex: 2,
+                      child: ElevatedButton.icon(
+                        onPressed: () {}, 
+                        style: ButtonStyle(
+                          elevation: const MaterialStatePropertyAll(0),
+                          backgroundColor: MaterialStatePropertyAll(Colors.grey.shade100),
+                          padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 12, horizontal: 8)),
                         ),
-                        // const SizedBox(width: 24),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text(event['name'],
-                              style: GoogleFonts.signikaNegative(
-                                color: Colors.grey.shade800,
-                                height: 0,
-                                fontSize: 24,
-                                fontWeight: FontWeight.w500
-                              )
-                            ),
-                            const SizedBox(height: 4),
-                            IntrinsicHeight(
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.schedule, color: Colors.grey, size: 20),
-                                  const SizedBox(width: 8),
-                                  Text(event['time'],
-                                    style: GoogleFonts.roboto(
-                                      color: Colors.grey,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w500
-                                    )
-                                  ),
-                                  const VerticalDivider(width: 20, indent: 4, endIndent: 4),
-                                  Text('$duration Jam',
-                                    style: GoogleFonts.roboto(
-                                      color: Colors.grey,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w500
-                                    )
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    IconAddons(event: event, size: 28, radius: 24)
-                  ],
-                ),
-              ),
-              Divider(indent: 32, endIndent: 32, thickness: 2, color: Colors.grey.shade200),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(Icons.event, size: 28, color: Colors.grey.shade700),
-                        const SizedBox(width: 16),
-                        Text(DateFormat('EEEE, dd MMMM yyyy', 'id').format(DateTime.now()),
-                          style: GoogleFonts.varelaRound(
-                            color: Colors.grey.shade700,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w600
-                          ),
-                        )
-                      ],
-                    ),
-                    Container(
-                      padding: const EdgeInsets.only(left: 6),
-                      height: 42,
-                      child: VerticalDivider(
-                        color: Colors.grey.shade300,
-                        thickness: 2, indent: 6, endIndent: 6
-                      )
-                    ),
-                    Row(
-                      children: [
-                        Icon(Icons.schedule, size: 28, color: Colors.grey.shade700),
-                        const SizedBox(width: 16),
-                        Text(event['time'],
-                          style: GoogleFonts.varelaRound(
-                            color: Colors.grey.shade700,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w600
-                          ),
-                        )
-                      ],
-                    ),
-                    Container(
-                      padding: const EdgeInsets.only(left: 6),
-                      height: 42,
-                      child: VerticalDivider(
-                        color: Colors.grey.shade300,
-                        thickness: 2, indent: 6, endIndent: 6
-                      )
-                    ),
-                    Row(
-                      children: [
-                        Icon(Icons.location_on, size: 28, color: Colors.grey.shade700),
-                        const SizedBox(width: 16),
-                        Text('${event['location']}, Pentungan Sari',
-                          style: GoogleFonts.varelaRound(
-                            color: Colors.grey.shade700,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w600
-                          ),
-                        )
-                      ],
-                    ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.only(left: 6),
-                          height: 180,
-                          child: VerticalDivider(
-                            color: Colors.grey.shade300,
-                            thickness: 2, indent: 6, endIndent: 6
+                        icon: Icon(Icons.call, color: Colors.grey.shade600),
+                        label: Text('Kontak',
+                          style: GoogleFonts.rubik(
+                            color: Colors.grey.shade600,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500
                           )
                         ),
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
-                            child: Container(
-                              clipBehavior: Clip.antiAlias,
-                              height: 160,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(12),
-                                image: DecorationImage(
-                                  fit: BoxFit.cover,
-                                  image: AssetImage(image)
-                                )
-                              ),
-                            ),
-                          ),
-                        )
-                      ],
+                      ),
+                    ),
+                    const SizedBox(width: 20),
+                    Expanded(
+                      flex: 4,
+                      child: ElevatedButton.icon(
+                        onPressed: () {}, 
+                        style: const ButtonStyle(
+                          elevation: MaterialStatePropertyAll(0),
+                          backgroundColor: MaterialStatePropertyAll(Colors.lightGreen),
+                          padding: MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 12, horizontal: 8)),
+                        ),
+                        icon: Icon(Icons.explore, color: Colors.grey.shade100),
+                        label: Text('Cari Lokasi',
+                          style: GoogleFonts.rubik(
+                            color: Colors.grey.shade100,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500
+                          )
+                        ),
+                      ),
                     ),
                   ],
                 ),
               )
             ],
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(32, 0, 32, 24),
-            child: Row(
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                Expanded(
-                  flex: 2,
-                  child: ElevatedButton.icon(
-                    onPressed: () {}, 
-                    style: ButtonStyle(
-                      elevation: const MaterialStatePropertyAll(0),
-                      backgroundColor: MaterialStatePropertyAll(Colors.grey.shade100),
-                      padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 12, horizontal: 8)),
-                    ),
-                    icon: Icon(Icons.call, color: Colors.grey.shade600),
-                    label: Text('Kontak',
-                      style: GoogleFonts.rubik(
-                        color: Colors.grey.shade600,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500
-                      )
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 20),
-                Expanded(
-                  flex: 4,
-                  child: ElevatedButton.icon(
-                    onPressed: () {}, 
-                    style: const ButtonStyle(
-                      elevation: MaterialStatePropertyAll(0),
-                      backgroundColor: MaterialStatePropertyAll(Colors.lightGreen),
-                      padding: MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 12, horizontal: 8)),
-                    ),
-                    icon: Icon(Icons.explore, color: Colors.grey.shade100),
-                    label: Text('Cari Lokasi',
-                      style: GoogleFonts.rubik(
-                        color: Colors.grey.shade100,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500
-                      )
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          )
-        ],
+        ),
       ),
     );
   }
