@@ -111,7 +111,7 @@ void showDialogEvent(BuildContext context, String tag, DateTime now) {
     fullscreenDialog: true,
     opaque: false,
     barrierDismissible: true,
-    barrierColor: Colors.black54,
+    barrierColor: Colors.black87,
     pageBuilder: (context, animation, secondaryAnimation) {
       return ShowDialogEvent(tag: tag, now: now);
     })
@@ -265,7 +265,10 @@ class _ShowDialogEventState extends State<ShowDialogEvent> {
         child: AnimatedPadding(
           duration: const Duration(milliseconds: 300),
           curve: Curves.ease,
-          padding: EdgeInsets.symmetric(vertical : expandDescription ? 24 : 36),
+          padding: EdgeInsets.symmetric(
+            vertical : MediaQuery.of(context).viewInsets.bottom == 0 
+            ? expandDescription ? 24 : 36 : 0
+          ),
           child: Scaffold(
             backgroundColor: Colors.transparent,
             body: Center(
@@ -274,15 +277,13 @@ class _ShowDialogEventState extends State<ShowDialogEvent> {
                 child: Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.only(
-                      topLeft: const Radius.circular(20),
-                      topRight: const Radius.circular(20),
+                      topLeft: const Radius.circular(16),
+                      topRight: const Radius.circular(16),
                       bottomLeft: Radius.circular(
-                        MediaQuery.of(context).viewInsets.bottom == 0 || expandDescription == false
-                        ? 20 : 0
+                        MediaQuery.of(context).viewInsets.bottom == 0 ? 16 : 0
                       ),
                       bottomRight: Radius.circular(
-                        MediaQuery.of(context).viewInsets.bottom == 0 || expandDescription == false
-                        ? 20 : 0
+                        MediaQuery.of(context).viewInsets.bottom == 0 ? 16 : 0
                       )
                     ),
                     color: Colors.grey.shade200,
@@ -293,7 +294,7 @@ class _ShowDialogEventState extends State<ShowDialogEvent> {
                       Flexible(
                         child: Material(
                           color: Colors.grey.shade50,
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(16),
                           elevation: 2,
                           shadowColor: Colors.black45,
                           child: Column(
@@ -304,18 +305,22 @@ class _ShowDialogEventState extends State<ShowDialogEvent> {
                                 elevation: 4,
                                 color: Colors.transparent,
                                 shadowColor: page == 1 ? Colors.lightGreen.withOpacity(0.5) : Colors.blue.withOpacity(0.5),
-                                borderRadius: BorderRadius.circular(20),
-                                child: Container(
+                                borderRadius: BorderRadius.circular(16),
+                                child: AnimatedContainer(
+                                  curve: Curves.easeInOutCubic,
+                                  duration: const Duration(milliseconds: 400),
                                   decoration: BoxDecoration(
                                     gradient: LinearGradient(
                                       begin: Alignment.topCenter,
                                       end: Alignment.bottomCenter,
                                       colors: page == 1 
-                                        ? [ Colors.lightGreen.shade100, Colors.lightGreen.shade700 ] 
-                                        : [ Colors.blue.shade100, Colors.blue.shade700 ],
+                                        ? [ Colors.lightGreen.shade200, Colors.lightGreen.shade700 ] 
+                                        : [ Colors.blue.shade200, Colors.blue.shade700 ],
                                       stops: const [ 0.2, 1.0 ]
                                     ),
-                                    borderRadius: BorderRadius.circular(20),
+                                    borderRadius: const BorderRadius.only(
+                                      topRight: Radius.circular(16), topLeft: Radius.circular(16),
+                                    ),
                                     image: DecorationImage(
                                       opacity: 0.05,
                                       fit: BoxFit.cover,
@@ -323,45 +328,9 @@ class _ShowDialogEventState extends State<ShowDialogEvent> {
                                     )
                                   ),
                                   child: Padding(
-                                    padding: const EdgeInsets.fromLTRB(32, 26, 32, 0),
+                                    padding: const EdgeInsets.fromLTRB(32, 18, 32, 0),
                                     child: Column(
                                       children: [
-                                        Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          crossAxisAlignment: CrossAxisAlignment.end,
-                                          children: [
-                                            Container(
-                                              height: 28,
-                                              width: 28,
-                                              margin: const EdgeInsets.only(bottom: 8),
-                                              child: IconButton(
-                                                padding: EdgeInsets.zero,
-                                                onPressed: () => Navigator.of(context).pop(), 
-                                                style: const ButtonStyle(
-                                                  foregroundColor: MaterialStatePropertyAll(Colors.white)
-                                                ),
-                                                icon: const Icon(Icons.close)
-                                              ),
-                                            ),
-                                            Row(
-                                              children: <Widget>[
-                                                CircleAvatar(
-                                                  backgroundColor: Colors.white,
-                                                  child: Transform.scale(
-                                                    scale: 0.75,
-                                                    child: Image.asset('images/bumdes.png', filterQuality: FilterQuality.none, scale: 0.05)
-                                                  ),
-                                                ),
-                                                const SizedBox(width: 16),
-                                                CircleAvatar(
-                                                  backgroundColor: Colors.white,
-                                                  child: Image.asset('images/toyomarto.png', filterQuality: FilterQuality.none, scale: 0.05),
-                                                ),
-                                              ]
-                                            )
-                                          ],
-                                        ),
-                                        const SizedBox(height: 24),
                                         Row(
                                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                           children: [
@@ -370,20 +339,59 @@ class _ShowDialogEventState extends State<ShowDialogEvent> {
                                               child: Row(
                                                 children: [
                                                   Icon(page == 1 
-                                                    ? Icons.receipt_long : Icons.control_point_duplicate_outlined, color: Colors.grey.shade50),
+                                                    ? Icons.receipt_long : Icons.control_point_duplicate_outlined, color: Colors.grey.shade50, 
+                                                    shadows: const [
+                                                      Shadow(color: Colors.black38, blurRadius: 6, offset: Offset(0, 1))
+                                                    ]
+                                                  ),
                                                   const SizedBox(width: 12),
                                                   Text(page == 1 ? 'Harga Acara' : 'Tambah Acara', 
                                                     style: GoogleFonts.rubik(
-                                                      fontSize: 22,
+                                                      fontSize: 24,
                                                       fontWeight: FontWeight.w500,
                                                       letterSpacing: -0.5,
                                                       wordSpacing: 4,
-                                                      color: Colors.grey.shade50
+                                                      color: Colors.grey.shade50,
+                                                      shadows: [ 
+                                                        const Shadow(color: Colors.black38, blurRadius: 6, offset: Offset(0, 1))
+                                                      ]
                                                     ),
                                                   ),
                                                 ],
                                               ),
                                             ),
+                                            Row(
+                                              children: <Widget>[
+                                                Container(
+                                                  padding: const EdgeInsets.all(2),
+                                                  decoration: BoxDecoration(
+                                                    shape: BoxShape.circle,
+                                                    color: Colors.white,
+                                                    border: Border.all(color: page == 0 ? Colors.blue.shade200 : Colors.lightGreen.shade200, width: 3)
+                                                  ),
+                                                  child: Transform.scale(
+                                                    scale: 0.75,
+                                                    child: Image.asset('images/bumdes.png', filterQuality: FilterQuality.none, scale: 0.05, height: 46)
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 12),
+                                                Container(
+                                                  decoration: BoxDecoration(
+                                                    shape: BoxShape.circle,
+                                                    color: Colors.white,
+                                                    border: Border.all(color: page == 0 ? Colors.blue.shade200 : Colors.lightGreen.shade200, width: 3)
+                                                  ),
+                                                  child: Transform.scale(
+                                                    scale: 0.75,
+                                                    child: Image.asset('images/toyomarto.png', filterQuality: FilterQuality.none, scale: 0.05, height: 54))),
+                                              ]
+                                            )
+                                          ],
+                                        ),
+                                        const SizedBox(height: 12),
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
                                             AnimatedSwitcher(
                                               duration: const Duration(milliseconds: 400),
                                               child: page == 0 ? TextButton.icon(
@@ -460,9 +468,9 @@ class _ShowDialogEventState extends State<ShowDialogEvent> {
                                                   color: Colors.lightGreen,
                                                   fontSize: 24,
                                                 ),
-                                                hintText: 'contoh: Rapat Keluarga',
+                                                hintText: 'Nama Acara',
                                                 hintStyle: GoogleFonts.rubik(
-                                                  color: Colors.grey.shade400,
+                                                  color: Colors.grey.shade300,
                                                   letterSpacing: -0.25,
                                                   fontSize: 24,
                                                   height: 1.75
@@ -1136,7 +1144,6 @@ class _ResultEventState extends State<ResultEvent> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 6),
         ListTile(
           minVerticalPadding: 14,
           title: Padding(
@@ -1437,6 +1444,8 @@ class _ShowLocationItemState extends State<ShowLocationItem> {
 
   late TextEditingController _textEditingController, _textEditingCurrencyController;
   late int tamu, tamu_;
+
+  List<bool> tiles = List.filled(9, false);
   
   String _formatNumber(String s) => NumberFormat.decimalPattern(ResultEvent._locale).format(int.parse(s));
   String get _currency => NumberFormat.compactSimpleCurrency(locale: ResultEvent._locale).currencySymbol;
@@ -1498,9 +1507,35 @@ class _ShowLocationItemState extends State<ShowLocationItem> {
                                   margin: const EdgeInsets.all(24),
                                   clipBehavior: Clip.antiAlias,
                                   decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(12)
+                                    borderRadius: BorderRadius.circular(12),
+                                    image: widget.location == 'Pendopo' ?DecorationImage(
+                                      fit: BoxFit.cover,
+                                      image: AssetImage('images/${widget.image}')
+                                    ) : null
                                   ),
-                                  child: Image.asset('images/${widget.image}', fit: BoxFit.cover),
+                                  child: widget.location == 'Pendopo' ? GridView(
+                                    padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
+                                    shrinkWrap: true,
+                                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
+                                    children: List.generate(tiles.length, (index) {
+                                      return Card(
+                                        color: tiles[index] ? Colors.white70 : Colors.white38,
+                                        elevation: 4,
+                                        shadowColor: Colors.black38,
+                                        surfaceTintColor: Colors.transparent,
+                                        child: Transform.scale(
+                                          scale: 4,
+                                          child: Checkbox(
+                                            fillColor: MaterialStatePropertyAll(Colors.lightGreen.shade700),
+                                            side: BorderSide.none,
+                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                            value: tiles[index], 
+                                            onChanged: (value) => setState(() => tiles[index] = value!),
+                                          ),
+                                        ),
+                                      );
+                                    }),
+                                  ) : Image.asset('images/${widget.image}', fit: BoxFit.cover),
                                 ),
                               ),
                             ),
@@ -1556,6 +1591,7 @@ class _ShowLocationItemState extends State<ShowLocationItem> {
                                 ],
                               ),
                             ),
+                            const SizedBox(height: 8),
                             Padding(
                               padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
                               child: Column(
@@ -1660,7 +1696,7 @@ class _ShowLocationItemState extends State<ShowLocationItem> {
                                         height: 1.75
                                       ),
                                       enabledBorder: OutlineInputBorder(
-                                        borderSide: BorderSide(color: Colors.grey.shade300, width: 2),
+                                        borderSide: BorderSide(color: Colors.green.withOpacity(0.25), width: 2),
                                         borderRadius: BorderRadius.circular(12)
                                       ),
                                       focusedBorder: OutlineInputBorder(
@@ -1780,7 +1816,7 @@ class _ShowLocationItemState extends State<ShowLocationItem> {
                                           )
                                         )
                                       ),
-                                      child: const Text('Ubah')
+                                      child: const Text('Sewakan')
                                     ),
                                   )
                                 ]
@@ -1968,6 +2004,7 @@ class _ShowChangeItemState extends State<ShowChangeItem> {
                                 ],
                               ),
                             ),
+                            const SizedBox(height: 8),
                             Padding(
                               padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
                               child: Column(
@@ -2032,6 +2069,12 @@ class _ShowChangeItemState extends State<ShowChangeItem> {
                                         child: Row(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
+                                            Column(
+                                              children: [
+                                                const Text('data'),
+                                                Image.asset('images')
+                                              ],
+                                            ),
                                             Text(widget.title == 'Speaker' || widget.title == 'Listrik'
                                               ? ' Jam ' : ' '
                                             ),
@@ -2201,7 +2244,7 @@ class _ShowChangeItemState extends State<ShowChangeItem> {
                                           )
                                         )
                                       ),
-                                      child: const Text('Pilih')
+                                      child: const Text('Sewakan')
                                     ),
                                   )
                                 ]

@@ -48,7 +48,7 @@ class ExpandablePageViewState extends State<ExpandablePageView> {
   @override
   void dispose() {
     /// Cause an lag spawn on widget.
-    // _pageController?.removeListener(_updatePage);
+    _pageController?.removeListener(_updatePage);
     // _pageController?.dispose();
     _first = false;
     super.dispose();

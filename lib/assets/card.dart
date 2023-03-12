@@ -193,27 +193,6 @@ class CardEventDay extends StatelessWidget {
                                         ),
                                       ],
                                     ),
-                                    if (duration > 3) ElevatedButton.icon(
-                                      style: ButtonStyle(
-                                        elevation: const MaterialStatePropertyAll(2),
-                                        shape: MaterialStatePropertyAll(
-                                          RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))
-                                        ),
-                                        iconSize: const MaterialStatePropertyAll(20),
-                                        iconColor: const MaterialStatePropertyAll(Colors.green),
-                                        backgroundColor: const MaterialStatePropertyAll(Colors.white),
-                                        foregroundColor: MaterialStatePropertyAll(Colors.grey.shade800)
-                                      ),
-                                      onPressed: () {}, 
-                                      icon: const Icon(Icons.explore), 
-                                      label: Text('Cari Lokasi', 
-                                        style: GoogleFonts.rubik(
-                                          height: 0,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w500
-                                        )
-                                      ),
-                                    ),
                                   ],
                                 ),
                               ),

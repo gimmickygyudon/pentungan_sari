@@ -71,6 +71,11 @@ List<Map<String, dynamic>> locations = [
     'icon': Icons.grass,
     'price': 0
   }, {
+    'name': 'Kafe',
+    'image': 'cafe_2.jpg',
+    'icon': Icons.local_cafe,
+    'price': 1500
+  }, {
     'name': 'Gazebo',
     'image': 'gazebo_2.jpg',
     'icon': Icons.cottage,
